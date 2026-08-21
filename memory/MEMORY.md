@@ -8,10 +8,13 @@ This file indexes everything in the Gearspot (Tiedottajanne Oy) memory system. R
 - [Product Profile](product-profile.md) — key products, pain points, angles *(template — not yet filled in)*
 
 ## Session Logs
+- [2026-08-21](../logs/2026-08-21-log.md) — DB integration, mobile UI fixes and search filtering
 - [2026-07-18](../logs/2026-07-18-log.md) — project setup
 
 ## Status
-Project scaffolded on 2026-07-18. All three profiles are empty templates awaiting real content from the user.
+- Frontend built with React + Vite + Tailwind CSS.
+- Dynamic data fetching service implemented (`src/services/api.js`) reading keys strictly from `.env.local`.
+- Mobile responsive layout and live filtering (search text, region dropdown, category pills) implemented and active.
 
 ## Exported JSON
 - [gearspot-project.json](../gearspot-project.json) — project metadata and profile template structure for local cloud or app import.
