@@ -1,9 +1,21 @@
+# Node & Build
 node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment variables and secrets
 .env
 .env.local
 .env.*.local
 credentials/
+token.json
+*service-account*.json
+
+# JSON files whitelist
 *.json
+!package.json
+!package-lock.json
 !gearspot-project.json
 
 # Python
