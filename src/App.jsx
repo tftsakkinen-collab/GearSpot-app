@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Search,
   MapPin,
@@ -15,101 +15,46 @@ import {
   PlusCircle,
   Menu,
   X,
-  Heart
+  Heart,
+  CheckCircle2,
+  Package
 } from 'lucide-react'
+import { MOCK_LISTINGS, getListings } from './data/mockListings'
 
 const CATEGORIES = [
   { id: 'all', name: 'Kaikki varusteet', icon: Compass },
   { id: 'tents', name: 'Teltat & Majoitus', icon: Tent },
-  { id: 'backpacks', name: 'Rinkat & Reput', icon: Compass },
+  { id: 'backpacks', name: 'Rinkat & Reput', icon: Package },
   { id: 'cooking', name: 'Retkikeittimet & Ruokailu', icon: Flame },
 ]
 
-const SAMPLE_GEAR = [
-  {
-    id: 1,
-    title: 'Hilleberg Allak 2 -kupoliteltta',
-    category: 'tents',
-    brand: 'Hilleberg',
-    location: 'Tuira, Oulu',
-    rating: 4.96,
-    reviews: 24,
-    pricePerDay: 22,
-    pricePerWeekend: 55,
-    tag: 'Suosittu retkiklassikko',
-    image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80',
-    owner: {
-      name: 'Matias K.',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-      badge: 'Superlainaaja'
-    },
-    specs: ['2 hengen', '4 vuodenajan', 'Paino 3.3 kg']
-  },
-  {
-    id: 2,
-    title: 'Fjällräven Kajka 75L -vaellusrinkka',
-    category: 'backpacks',
-    brand: 'Fjällräven',
-    location: 'Kaakkuri, Oulu',
-    rating: 4.92,
-    reviews: 18,
-    pricePerDay: 14,
-    pricePerWeekend: 35,
-    tag: 'Ergonominen',
-    image: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=800&q=80',
-    owner: {
-      name: 'Laura H.',
-      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
-      badge: 'Aktiiviretkeilijä'
-    },
-    specs: ['75 litraa', 'Säädettävä selkäosa', 'Sadesuoja mukana']
-  },
-  {
-    id: 3,
-    title: 'Primus OmniLite Ti -titaanikeitin & kaasupullo',
-    category: 'cooking',
-    brand: 'Primus',
-    location: 'Keskusta, Oulu',
-    rating: 5.0,
-    reviews: 31,
-    pricePerDay: 9,
-    pricePerWeekend: 22,
-    tag: 'Ultrakevyt',
-    image: 'https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=800&q=80',
-    owner: {
-      name: 'Antti S.',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-      badge: 'Superlainaaja'
-    },
-    specs: ['Monipolttoaine', 'Paino 230g', 'Tuulisuoja mukana']
-  },
-  {
-    id: 4,
-    title: 'Exped SynMat XP 7 MW -makuualusta',
-    category: 'tents',
-    brand: 'Exped',
-    location: 'Linnanmaa, Oulu',
-    rating: 4.88,
-    reviews: 12,
-    pricePerDay: 8,
-    pricePerWeekend: 20,
-    tag: 'Lämmin R-arvo 4.8',
-    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?auto=format&fit=crop&w=800&q=80',
-    owner: {
-      name: 'Vilma T.',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
-      badge: 'Uusi varuste'
-    },
-    specs: ['Pumppupussi', 'Leveä MW-malli', 'Paksuus 7cm']
-  }
-]
-
 export default function App() {
+  // listings ladattu turvallisesti staattisesta datasta (ohittaa Postgres-tietokantahaun)
+  const [listings, setListings] = useState(MOCK_LISTINGS)
+  const [loading, setLoading] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('Koko Oulu')
   const [favorites, setFavorites] = useState([])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Haetaan ilmoitukset (tässä mock-funktio, joka ei tee verkkopyyntöjä Postgresiin)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true)
+        // HUOM: Tietokanta- ja API-kutsut korvattu getListings() -mockilla
+        const data = await getListings()
+        setListings(data)
+      } catch (err) {
+        console.warn('Virhe ladattaessa ilmoituksia, käytetään MOCK_LISTINGS fallbackia:', err)
+        setListings(MOCK_LISTINGS)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
 
   const toggleFavorite = (id) => {
     setFavorites(prev => 
@@ -117,12 +62,14 @@ export default function App() {
     )
   }
 
-  const filteredGear = SAMPLE_GEAR.filter(item => {
+  const filteredGear = listings.filter(item => {
     const matchesCat = selectedCategory === 'all' || item.category === selectedCategory
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.location.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCat && matchesSearch
+                          item.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesLocation = selectedLocation === 'Koko Oulu' || item.location.toLowerCase().includes(selectedLocation.toLowerCase())
+    return matchesCat && matchesSearch && matchesLocation
   })
 
   return (
@@ -219,7 +166,7 @@ export default function App() {
                 <Search className="w-5 h-5 text-neutral-400 shrink-0" />
                 <input
                   type="text"
-                  placeholder="Mitä varustetta etsit? (esim. Hilleberg, rinkka...)"
+                  placeholder="Mitä varustetta etsit? (esim. Hilleberg, rinkka, keitin...)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-transparent text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none"
@@ -296,7 +243,13 @@ export default function App() {
         </div>
 
         {/* Product Cards Grid */}
-        {filteredGear.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="bg-white rounded-2xl p-4 border border-neutral-200 animate-pulse h-80" />
+            ))}
+          </div>
+        ) : filteredGear.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredGear.map((gear) => (
               <div 
@@ -306,17 +259,19 @@ export default function App() {
                 {/* Image Container */}
                 <div className="relative aspect-4/3 overflow-hidden bg-neutral-100">
                   <img 
-                    src={gear.image} 
+                    src={gear.imageUrl} 
                     alt={gear.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   
                   {/* Category Tag */}
-                  <div className="absolute top-3 left-3">
-                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/60 backdrop-blur-md text-white">
-                      {gear.tag}
-                    </span>
-                  </div>
+                  {gear.tag && (
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/60 backdrop-blur-md text-white">
+                        {gear.tag}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Favorite Button */}
                   <button 
@@ -344,7 +299,7 @@ export default function App() {
                       <div className="flex items-center gap-1 text-neutral-700 font-semibold">
                         <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         <span>{gear.rating}</span>
-                        <span className="text-neutral-400 font-normal">({gear.reviews})</span>
+                        <span className="text-neutral-400 font-normal">({gear.reviewsCount || 10})</span>
                       </div>
                     </div>
 
@@ -354,13 +309,15 @@ export default function App() {
                     </h3>
 
                     {/* Specs / Highlights */}
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {gear.specs.map((spec, idx) => (
-                        <span key={idx} className="text-[11px] text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded-md">
-                          {spec}
-                        </span>
-                      ))}
-                    </div>
+                    {gear.specs && (
+                      <div className="mt-2.5 flex flex-wrap gap-1.5">
+                        {gear.specs.slice(0, 3).map((spec, idx) => (
+                          <span key={idx} className="text-[11px] text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded-md">
+                            {spec}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Owner & Price Footer */}
@@ -382,9 +339,11 @@ export default function App() {
                       <div className="text-base font-extrabold text-gearspot-900">
                         {gear.pricePerDay} € <span className="text-[11px] font-normal text-neutral-500">/ vrk</span>
                       </div>
-                      <div className="text-[10px] text-neutral-400">
-                        {gear.pricePerWeekend} € / vkl
-                      </div>
+                      {gear.pricePerWeekend && (
+                        <div className="text-[10px] text-neutral-400">
+                          {gear.pricePerWeekend} € / vkl
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -398,7 +357,7 @@ export default function App() {
             <h3 className="text-base font-bold text-neutral-800">Ei hakutuloksia</h3>
             <p className="text-xs text-neutral-500 mt-1">Kokeile toista hakusanaa tai valitse kaikki kategoriat.</p>
             <button 
-              onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+              onClick={() => { setSearchQuery(''); setSelectedCategory('all'); setSelectedLocation('Koko Oulu'); }}
               className="mt-4 text-xs font-semibold text-emerald-700 hover:underline"
             >
               Tyhjennä suodattimet

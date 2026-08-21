@@ -1,4 +1,4 @@
-# Environment variables and secrets
+node_modules/
 .env
 .env.local
 .env.*.local
