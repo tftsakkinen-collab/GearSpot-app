@@ -1,0 +1,18 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+credentials/
+*.json
+!gearspot-project.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Output
+config/rules.md

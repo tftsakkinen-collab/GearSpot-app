@@ -1,0 +1,106 @@
+{
+  "project": {
+    "name": "Gearspot",
+    "company": "Tiedottajanne Oy",
+    "workspacePath": "c:\\Gearspot",
+    "createdAt": "2026-07-18",
+    "status": "scaffolded",
+    "profiles": {
+      "customerProfile": {
+        "name": "customer-profile",
+        "description": "Who Gearspot's customer is, what they want, their objections, the words they actually use, and top products with reasons for purchase.",
+        "status": "template-not-filled",
+        "sections": [
+          {
+            "title": "Who is the customer?",
+            "content": "[Demographics, psychographics, life situation, where they hang out online.]"
+          },
+          {
+            "title": "What do they want?",
+            "content": "[The outcome they're actually buying — functional, emotional, social.]"
+          },
+          {
+            "title": "What are their objections?",
+            "content": "[Price, trust, timing, \"will this actually work for me\" concerns — the real hesitations, not assumed ones.]"
+          },
+          {
+            "title": "Words they actually use",
+            "content": "[Verbatim phrases from reviews, support tickets, DMs, comments — not marketing paraphrase.]"
+          },
+          {
+            "title": "Top products and why people buy them",
+            "content": "[Product name → the real reason it sells, in the customer's terms.]"
+          },
+          {
+            "title": "Sources",
+            "content": "[Where this info came from: interviews, review mining, survey data, support logs, etc. Date each source.]"
+          }
+        ]
+      },
+      "brandProfile": {
+        "name": "brand-profile",
+        "description": "What Gearspot is, what the brand stands for, tone of voice, claims we can and cannot make, and what makes the brand credible.",
+        "status": "template-not-filled",
+        "sections": [
+          {
+            "title": "What is Gearspot?",
+            "content": "[One or two sentences: category, what's sold, who runs it (Tiedottajanne Oy).]"
+          },
+          {
+            "title": "What the brand stands for",
+            "content": "[Mission, values, the point of view that differentiates it from competitors.]"
+          },
+          {
+            "title": "Tone of voice",
+            "content": "[How Gearspot sounds: formal/casual, playful/serious, vocabulary to use or avoid, example lines.]"
+          },
+          {
+            "title": "Claims we CAN use",
+            "content": "[Substantiated claims — backed by data, certifications, testing, guarantees.]"
+          },
+          {
+            "title": "Claims we should AVOID",
+            "content": "[Overreach, unsubstantiated health/performance claims, regulatory red lines, anything legal has flagged.]"
+          },
+          {
+            "title": "What makes the brand credible",
+            "content": "[Proof points: reviews, press, certifications, founder story, guarantees, years in business.]"
+          },
+          {
+            "title": "Sources",
+            "content": "[Where this info came from, and date.]"
+          }
+        ]
+      },
+      "productProfile": {
+        "name": "product-profile",
+        "description": "Gearspot's key products — what they do, who they're for, pain points, benefits, objections, best angles, and why people buy them.",
+        "status": "template-not-filled",
+        "sections": [
+          {
+            "title": "[Product Name]",
+            "content": {
+              "whatItDoes": "[functional description]",
+              "whoItsFor": "[target buyer segment]",
+              "painPoints": "[the problem before the product]",
+              "benefits": "[functional + emotional]",
+              "objections": "[why someone wouldn't buy, and what overcomes it]",
+              "bestAngles": "[proven or hypothesized ad angles/hooks]",
+              "whyPeopleBuyIt": "[the real driver, from reviews/data — not assumed]"
+            }
+          },
+          {
+            "title": "Sources",
+            "content": "[Where this info came from, and date.]"
+          }
+        ]
+      }
+    },
+    "files": [
+      "memory/customer-profile.md",
+      "memory/brand-profile.md",
+      "memory/product-profile.md",
+      "logs/2026-07-18-log.md"
+    ]
+  }
+}
