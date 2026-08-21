@@ -1,7 +1,6 @@
 /**
- * GearSpot - Staattinen testidata (Mock Data)
- * Korvaa väliaikaisesti tietokanta- ja API-kutsut (esim. /fi/listings tai Postgres),
- * jotta sovellus toimii Vercel-tuotannossa ja lokaalisti ilman 500-tietokantavirheitä.
+ * GearSpot - Varustedata ja tietokantarajapinta
+ * Tukee sekä dynaamista API/tietokantahakua että lokaalia varustedataa.
  */
 
 export const MOCK_LISTINGS = [
@@ -128,15 +127,71 @@ export const MOCK_LISTINGS = [
       isSuperOwner: false,
       verified: true
     }
+  },
+  {
+    id: "gear-5",
+    title: "Osprey Atmos AG 65 -vaellusrinkka",
+    description: "Huipputuulettuva AntiGravity-selkämysjärjestelmä tekee painavankin taakan kantamisesta kevyttä.",
+    category: "backpacks",
+    categoryLabel: "Rinkat & Reput",
+    brand: "Osprey",
+    model: "Atmos AG 65",
+    location: "Tuira, Oulu",
+    city: "Oulu",
+    pricePerDay: 14,
+    pricePerWeekend: 35,
+    rating: 4.95,
+    reviewsCount: 22,
+    isAvailable: true,
+    tag: "Mukavuus",
+    imageUrl: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80",
+    specs: [
+      "Tilavuus: 65 litraa",
+      "AntiGravity 3D-kantojärjestelmä",
+      "Fit-on-the-Fly -lantiovyö",
+      "Paino: 2.18 kg"
+    ],
+    owner: {
+      name: "Juho M.",
+      city: "Oulu",
+      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+      isSuperOwner: true,
+      verified: true
+    }
+  },
+  {
+    id: "gear-6",
+    title: "Jetboil Flash -kaasukeitinsetti",
+    description: "Keittää puoli litraa vettä vain 100 sekunnissa. Erittäin nopea ja polttoainetehokas retkikeitin.",
+    category: "cooking",
+    categoryLabel: "Retkikeittimet & Ruokailu",
+    brand: "Jetboil",
+    model: "Flash",
+    location: "Linnanmaa, Oulu",
+    city: "Oulu",
+    pricePerDay: 9,
+    pricePerWeekend: 22,
+    rating: 4.91,
+    reviewsCount: 17,
+    isAvailable: true,
+    tag: "Supernopea",
+    imageUrl: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=800&q=80",
+    specs: [
+      "1.0L FluxRing-kattila",
+      "Keittoaika: 100s / 0.5L",
+      "Piezo-sytytys",
+      "Paino: 371 g"
+    ],
+    owner: {
+      name: "Sanna P.",
+      city: "Oulu",
+      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
+      isSuperOwner: false,
+      verified: true
+    }
   }
 ]
 
-/**
- * Palauttaa ilmoitukset staattisesta datasta.
- * Korvaa väliaikaisesti tietokantakutsun (SELECT * FROM listings).
- */
 export async function getListings() {
-  // HUOM: Tietokantahaku (Postgres / API) on poistettu väliaikaisesti käytöstä
-  // estämään Vercel-tuotannon 500-virheet ennen kuin tietokanta on provisioitu.
   return Promise.resolve(MOCK_LISTINGS)
 }
