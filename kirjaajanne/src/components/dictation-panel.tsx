@@ -318,6 +318,6 @@ const handleCopyAndClear = async () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </div> 
   );
 }
