@@ -78,6 +78,110 @@ return (
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <form onSubmit={onFormSubmit} className="flex flex-col gap-3">
+    const [isCopied, setIsCopied] = React.useState(false);
+
+  const onFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (input.trim().length === 0) {
+      console.warn("[Kirjaajanne] Sanelu on tyhjä, API-kutsua ei lähetetä.");
+      return;
+    }
+    console.log("[Kirjaajanne] Lähetetään sanelu Kanta-kirjausta varten:", input);
+    
+    // TÄMÄ ESTÄÄ KENTÄN TYHJENTYMISEN: Pakotetaan Vercel AI SDK lukemaan teksti 
+    complete(input);
+  };
+
+  const handleCopyAndClear = async () => {
+    if (!completion) return;
+    await navigator.clipboard.writeText(completion);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+    // Nämä tyhjentävät ruudun vasta kun olet aidosti kopioinut tekstin
+    if (typeof setCompletion === 'function') setCompletion("");
+    if (typeof setInput === 'function') setInput("");
+  };
+
+  return (
+    <div className="flex w-full flex-col items-center gap-4">
+      <div className="relative">
+        {isRecording && (
+          <span className="absolute inset-0 animate-ping rounded-full bg-destructive/40" />
+        )}
+        <Button
+          size="lg"
+          onClick={handleRecorderButtonClick}
+          disabled={isTranscribing}
+          className={cn(
+            "relative h-24 w-24 rounded-full p-0 shadow-lg transition-transform hover:scale-105 sm:h-32 sm:w-32",
+            isRecording
+              ? "bg-destructive text-destructive-foreground shadow-destructive/30 hover:bg-destructive/90"
+              : "shadow-primary/20"
+          )}
+          aria-label={isRecording ? "Lopeta nauhoitus" : "Aloita sanelun nauhoitus"}
+          aria-pressed={isRecording}
+        >
+          {isTranscribing ? (
+            <Loader2 className="size-10 animate-spin sm:size-12" />
+          ) : isRecording ? (
+            <Square className="size-10 sm:size-12" fill="currentColor" />
+          ) : (
+            <Mic className="size-10 sm:size-12" />
+          )}
+        </Button>
+      </div>
+      <span className="text-base font-semibold tracking-wide text-primary sm:text-lg">
+        {isTranscribing
+          ? "Litteroidaan puhetta..."
+          : isRecording
+          ? `Nauhoitetaan... ${formatRecordingTime(recordingTime)}`
+          : "Sanele tästä"}
+      </span>
+      <span className="text-sm text-muted-foreground">
+        {isRecording
+          ? "Paina uudelleen lopettaaksesi nauhoituksen."
+          : "Paina ja aloita sanelu \u23CE ei asennuksia, ei viivettä."}
+      </span>
+
+      {micError && (
+        <div className="flex w-full max-w-2xl items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+          <span>{micError}</span>
+        </div>
+      )}
+
+      {!isOpen && (
+        <button
+          type="button"
+          onClick={handleMicClick}
+          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Tai kirjoita sanelu käsin
+        </button>
+      )}
+
+      {isOpen && (
+        <Card className="mt-4 w-full max-w-2xl text-left">
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div>
+              <CardTitle>Vapaa sanelu</CardTitle>
+              <CardDescription>
+                Sanele mikrofonilla tai kirjoita/liitä teksti alle. Tekoäly
+                jäsentää sen Kanta-yhteensopivaksi kirjaukseksi.
+              </CardDescription>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setIsOpen(false)}
+              aria-label="Piilota sanelupaneeli"
+            >
+              <X className="size-4" />
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <form onSubmit={onFormSubmit} className="flex flex-col gap-3">
               <Textarea
                 value={input}
                 onChange={handleInputChange}
@@ -137,4 +241,4 @@ return (
       )}
     </div>
   );
-}
+}        
