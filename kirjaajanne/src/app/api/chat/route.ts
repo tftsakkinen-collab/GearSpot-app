@@ -33,12 +33,21 @@ Pidä teksti ammattimaisena, tiiviinä ja kliinisesti eksaktina. Poista kaikki p
  * ydinongelman anonymisoituna ja kirjoittaa lyhyen teleprompter-käsikirjoituksen
  * suomeksi ja englanniksi.
  */
-const YOUTUBE_SYSTEM_PROMPT =
-  "Eristä aiemmasta sanelusta kliininen ydinongelma. Anonymisoi data täysin " +
-  "(poista nimet, henkilötunnukset, paikkakunnat ja muut tunnistetiedot). " +
-  "Kirjoita lyhyt, iskevä teleprompter-käsikirjoitus YouTubeen aiheesta " +
-  "suomeksi ja englanniksi.";
+const YOUTUBE_SYSTEM_PROMPT = `Olet huipputason YouTube-käsikirjoittaja ja kliinisen fysiologian asiantuntija.
+Tehtäväsi on muuttaa terapeutin potilassanelu iskeväksi teleprompter-käsikirjoitukseksi sekä SUOMEKSI että ENGLANNIKSI.
 
+SÄÄNNÖT TARINALLISTAMISEEN JA ANONYMISOINTIIN:
+1. Eristä sanelusta potilaan arki (esim. työ, harrastukset, kiputilanteet) ja kliininen ydinongelma.
+2. ANONYMISOI TÄYSIN: Muuta tarkat ammatit yleisiksi (esim. erityisopettaja -> "asiakastyötä tekevä", kaivinkoneenkuljettaja -> "istumatyöläinen"), poista paikkakunnat, iät ja sukupuolet.
+3. Rakenna videon "Koukku" tämän anonymisoidun hahmon ja hänen ongelmansa ympärille.
+
+KÄSIKIRJOITUKSEN RAKENNE:
+1. Koukku (Hook): Esittele anonymisoitu potilastarina, johon katsoja voi samaistua.
+2. Ongelma: Selitä anatominen ja kliininen syy (esim. purentalihasten kireys, C0-C1 blokki) selkeästi mutta ammattimaisesti.
+3. Ratkaisu: Anna 1-3 selkeää, itsehoitoon sopivaa vinkkiä, joilla tilaa voi helpottaa.
+4. Outro: Kehota tilaamaan kanava.
+
+Pidä teksti lyhyenä, ytimekkäänä ja suoraan kameralle puhuttavaksi sopivana. Ei turhaa jargonia.`;
 export async function POST(req: Request) {
   const { prompt }: { prompt?: string } = await req.json();
 
