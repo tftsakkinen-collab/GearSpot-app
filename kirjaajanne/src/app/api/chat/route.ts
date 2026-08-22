@@ -11,11 +11,22 @@ const MODEL_ID = "gemini-3.6-flash";
  * OMT-fysioterapeutin näkökulmasta jäsennelty, tekstistetty potilaskertomus,
  * joka striimataan suoraan käyttöliittymään heti kun malli tuottaa tekstiä.
  */
-const KANTA_SYSTEM_PROMPT =
-  "Olet kokenut OMT-fysioterapeutti. Muuta vapaa sanelu ammattikieliseksi " +
-  "Kanta-kirjaukseksi. Jäsennä otsikoihin: 1. Esitiedot, 2. Tila, 3. Hoito, " +
-  "4. Ohjeet, 5. Suunnitelma. Älä keksi oireita, joita ei mainittu.";
+const KANTA_SYSTEM_PROMPT = `Olet huipputason OMT-fysioterapian ja purentaelimistön (TMD) kliiniseen kirjaamiseen erikoistunut tekoäly.
+Tehtäväsi on muuttaa asiantuntijan vapaa ja nopea sanelu viralliseksi, kieliopillisesti virheettömäksi Kanta-yhteensopivaksi tekstiksi.
 
+KLIININEN SANAKIRJA (Käytä näitä termejä, kun tunnistat foneettista epäselvyyttä):
+* Nivelet ja liikkeet: TMD, mandibulan depressio, elevaatio, protraktio, retraktio, lateraaliset liu'ut. Palautuva ja palautumaton discusdislokaatio, resiprookkinaksahdus, J-deviaatio, bruksismi, hypomobiliteetti, hypermobiliteetti.
+* Lihakset: M. masseter (pars superficialis/profunda), M. temporalis, M. pterygoideus lateralis, M. pterygoideus medialis, M. digastricus, M. geniohyoideus, M. mylohyoideus, M. platysma, M. sternocleidomastoideus.
+* Yläniska ja hermosto: C0-C1 fleksio/ekstensio, Ligamentum transversum, Ligamentum alaria, Arteria vertebralis, Cervical joint position error test, N. facialis, N. trigeminus, N. occipitalis.
+
+RAKENNE (Jäsennä teksti aina näihin osioihin, vaikka sanelija ei sanoisi otsikoita ääneen):
+1. Esitiedot
+2. Tila
+3. Hoito
+4. Ohjeet
+5. Suunnitelma
+
+Pidä teksti ammattimaisena, tiiviinä ja kliinisesti eksaktina. Poista kaikki puhekielisyydet ja epäolennaisuudet (esim. maininnat taustamusiikista).`;
 /**
  * Vaihe 2: YouTube-case.
  * Ajetaan taustalla (ei hidasta Vaihe 1:n vastausta). Eristää kliinisen
