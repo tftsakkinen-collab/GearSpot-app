@@ -36,16 +36,15 @@ export function DictationPanel() {
   const [micError, setMicError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Vercel AI SDK:n useCompletion tuottaa `input`, `handleInputChange` ja
-  // `handleSubmit` -apurit, jotka on nyt kytketty suoraan lomakkeeseen alla.
-  // `setInput` ja `complete` mahdollistavat sanelutekstin syöttämisen samaan
-  // Kanta-kirjaus-funktioon myös äänilitteroinnin valmistuttua.
+  // Tekstikenttä on täysin irrotettu Vercel AI SDK:n `input`-tilasta, koska
+  // `useCompletion` tyhjentää sen taustalla viiveellä heti kun striimaus
+  // käynnistyy. `localText` on ainoa lähde Textarean sisällölle, ja
+  // `complete()` kutsutaan aina suoraan sillä.
+  const [localText, setLocalText] = useState("");
+
   const {
     completion,
     setCompletion,
-    input,
-    setInput,
-    handleInputChange,
     complete,
     isLoading,
     error,
@@ -142,7 +141,7 @@ export function DictationPanel() {
           "[Kirjaajanne] Whisper-litterointi onnistui, syötetään teksti Kanta-kirjaus-funktioon:",
           transcribedText
         );
-        setInput(transcribedText);
+        setLocalText(transcribedText);
         await complete(transcribedText);
       } catch (transcribeError) {
         const message =
@@ -160,26 +159,18 @@ export function DictationPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordingBlob]);
 
-  // Vercel AI SDK:n `complete()`-kutsu tyhjentää `input`-kentän taustalla
-  // heti kun striimaus käynnistyy. Otetaan käyttäjän kirjoittama teksti
-  // talteen omaan muuttujaan ennen `complete()`-kutsua, ja palautetaan se
-  // `setInput()`-komennolla takaisin kenttään pienellä viiveellä sen
-  // jälkeen kun SDK on ehtinyt tyhjentää sen.
+  // `localText` on ainoa totuudenlähde tekstikentälle, joten `complete()`
+  // kutsutaan suoraan sillä eikä SDK:n `input`-tilalla tarvitse enää
+  // ohittaa tyhjenemistä setTimeoutilla.
   const onFormSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (input.trim().length === 0) {
+    if (localText.trim().length === 0) {
       console.warn("[Kirjaajanne] Sanelu on tyhjä, API-kutsua ei lähetetä.");
       return;
     }
 
-    const submittedInput = input;
-    console.log("[Kirjaajanne] Lähetetään sanelu Kanta-kirjausta varten:", submittedInput);
-
-    void complete(submittedInput);
-
-    setTimeout(() => {
-      setInput(submittedInput);
-    }, 10);
+    console.log("[Kirjaajanne] Lähetetään sanelu Kanta-kirjausta varten:", localText);
+    void complete(localText);
   };
 
   const handleCopyAndClear = async () => {
@@ -189,7 +180,7 @@ export function DictationPanel() {
     setTimeout(() => setIsCopied(false), 2000);
     // Nämä tyhjentävät ruudun vasta kun olet aidosti kopioinut tekstin
     setCompletion("");
-    setInput("");
+    setLocalText("");
   };
 
   return (
@@ -273,8 +264,8 @@ export function DictationPanel() {
           <CardContent className="flex flex-col gap-4">
             <form onSubmit={onFormSubmit} className="flex flex-col gap-3">
               <Textarea
-                value={input}
-                onChange={handleInputChange}
+                value={localText}
+                onChange={(e) => setLocalText(e.target.value)}
                 placeholder="Esim. Potilas kertoo alaselän kivusta, joka on jatkunut kaksi viikkoa nostotilanteen jälkeen..."
                 className="min-h-32"
                 disabled={isLoading || isTranscribing}
@@ -282,7 +273,7 @@ export function DictationPanel() {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  disabled={isLoading || isTranscribing || input.trim().length === 0}
+                  disabled={isLoading || isTranscribing || localText.trim().length === 0}
                   className="gap-1.5"
                 >
                   {isLoading ? (
