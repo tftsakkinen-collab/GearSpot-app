@@ -34,6 +34,7 @@ export function DictationPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
+const [isCopied, setIsCopied] = useState(false);
 
   // Vercel AI SDK:n useCompletion tuottaa `input`, `handleInputChange` ja
   // `handleSubmit` -apurit, jotka on nyt kytketty suoraan lomakkeeseen alla.
@@ -41,6 +42,7 @@ export function DictationPanel() {
   // Kanta-kirjaus-funktioon myös äänilitteroinnin valmistuttua.
   const {
     completion,
+    setCompletion,
     input,
     setInput,
     handleInputChange,
@@ -170,7 +172,14 @@ export function DictationPanel() {
     console.log("[Kirjaajanne] Lähetetään sanelu Kanta-kirjausta varten:", input);
     handleSubmit(event);
   };
-
+const handleCopyAndClear = async () => {
+    if (!completion) return;
+    await navigator.clipboard.writeText(completion);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+    setCompletion("");
+    setInput("");
+  };
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <div className="relative">
@@ -203,13 +212,13 @@ export function DictationPanel() {
         {isTranscribing
           ? "Litteroidaan puhetta..."
           : isRecording
-            ? `Nauhoitetaan... ${formatRecordingTime(recordingTime)}`
-            : "Sanele tästä"}
+          ? `Nauhoitetaan... ${formatRecordingTime(recordingTime)}`
+          : "Sanele tästä"}
       </span>
       <span className="text-sm text-muted-foreground">
         {isRecording
           ? "Paina uudelleen lopettaaksesi nauhoituksen."
-          : "Paina ja aloita sanelu – ei asennuksia, ei viivettä."}
+          : "Paina ja aloita sanelu \u23CE ei asennuksia, ei viivettä."}
       </span>
 
       {micError && (
@@ -294,6 +303,18 @@ export function DictationPanel() {
                 </pre>
               </div>
             )}
+
+            {completion && (
+              <Button 
+                onClick={handleCopyAndClear} 
+                className={`w-full mt-2 font-bold text-lg py-6 transition-all ${
+                  isCopied ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
+                } text-white`}
+              >
+                {isCopied ? "Kopioitu potilastietojärjestelmään!" : "Kopioi ja Tyhjennä (Ctrl+C)"}
+              </Button>
+            )}
+
           </CardContent>
         </Card>
       )}
