@@ -20,7 +20,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 32,
     isAvailable: true,
     tag: "Suosikki",
-    imageUrl: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://loremflickr.com/800/600/paddleboard?lock=10", 
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Alumiinimela, pumppu & karkuremmi",
@@ -30,7 +30,7 @@ export const MOCK_LISTINGS = [
     owner: {
       name: "Matias K.",
       city: "Oulu",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+      avatar: "https://loremflickr.com/120/120/face?lock=1",
       isSuperOwner: true,
       verified: true
     }
@@ -51,7 +51,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 19,
     isAvailable: true,
     tag: "Premium",
-    imageUrl: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://loremflickr.com/800/600/paddleboard?lock=20",
     specs: [
       "Kantavuus: 120 kg",
       "Varusteet: Hiilikuitumela, Titan 2 -pumppu & karkuremmi",
@@ -61,7 +61,7 @@ export const MOCK_LISTINGS = [
     owner: {
       name: "Laura H.",
       city: "Oulu",
-      avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80",
+      avatar: "https://loremflickr.com/120/120/face?lock=2",
       isSuperOwner: false,
       verified: true
     }
@@ -82,7 +82,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 24,
     isAvailable: true,
     tag: "Helppo & Vakaa",
-    imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://loremflickr.com/800/600/paddleboard?lock=30",
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Säädettävä mela, kaksitoimipumppu & karkuremmi",
@@ -92,7 +92,7 @@ export const MOCK_LISTINGS = [
     owner: {
       name: "Vilma T.",
       city: "Oulu",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80",
+      avatar: "https://loremflickr.com/120/120/face?lock=3",
       isSuperOwner: false,
       verified: true
     }
@@ -113,7 +113,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 18,
     isAvailable: true,
     tag: "Retkimalli",
-    imageUrl: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://loremflickr.com/800/600/paddleboard?lock=40",
     specs: [
       "Kantavuus: 160 kg",
       "Varusteet: Lasikuitumela, korkeapainepumppu & karkuremmi",
@@ -123,7 +123,7 @@ export const MOCK_LISTINGS = [
     owner: {
       name: "Juho M.",
       city: "Oulu",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+      avatar: "https://loremflickr.com/120/120/face?lock=4",
       isSuperOwner: true,
       verified: true
     }
@@ -144,7 +144,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 34,
     isAvailable: true,
     tag: "Ultrakevyt",
-    imageUrl: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://loremflickr.com/800/600/camping,stove?lock=50",
     specs: [
       "Monipolttoainevalmius",
       "Paino: 230 g (ilman pumppua)",
@@ -154,7 +154,7 @@ export const MOCK_LISTINGS = [
     owner: {
       name: "Antti S.",
       city: "Oulu",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
+      avatar: "https://loremflickr.com/120/120/face?lock=5",
       isSuperOwner: true,
       verified: true
     }
@@ -175,7 +175,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 17,
     isAvailable: true,
     tag: "Supernopea",
-    imageUrl: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://loremflickr.com/800/600/camping?lock=60",
     specs: [
       "1.0L FluxRing-kattila",
       "Keittoaika: 100s / 0.5L",
@@ -185,7 +185,7 @@ export const MOCK_LISTINGS = [
     owner: {
       name: "Sanna P.",
       city: "Oulu",
-      avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
+      avatar: "https://loremflickr.com/120/120/face?lock=6",
       isSuperOwner: false,
       verified: true
     }
