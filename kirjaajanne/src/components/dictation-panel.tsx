@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCompletion } from "@ai-sdk/react";
+import { toast } from "sonner";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import {
   AlertCircle,
@@ -30,6 +31,30 @@ function formatRecordingTime(totalSeconds: number) {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+// Selaimen localStorage-avain sanelu-luonnoksen automaattitallennukselle
+// (Tehtävä 2: Automaattinen tallennus).
+const DRAFT_STORAGE_KEY = "kirjaajanne:sanelu-luonnos";
+
+// Pikamallineet (Tehtävä 3): valmiit tekstirungot, jotka lisätään kursorin
+// kohdalle Textareaan ja joita käyttäjä voi täydentää.
+const QUICK_INSERT_TEMPLATES: { label: string; template: string }[] = [
+  {
+    label: "TMD-tutkimus",
+    template:
+      "TMD-tutkimus: mandibulan liikelaajuudet mitattu (depressio/elevaatio/protraktio/retraktio), palpaatioarkuus m. masseter ja m. temporalis, niveläänet ja mahdollinen deviaatio avattaessa. ",
+  },
+  {
+    label: "Manuaaliterapia",
+    template:
+      "Manuaaliterapia: pehmytkudoskäsittely ja nivelmobilisointi kohdealueelle. Hoidon jälkeen liikelaajuus ja kipu koettu subjektiivisesti parantuneeksi. ",
+  },
+  {
+    label: "Ergonomiaohjaus",
+    template:
+      "Ergonomiaohjaus: käytiin läpi työpisteen/arjen ergonomia ja annettiin kirjalliset kotiharjoitteet kuormituksen tasaamiseksi. ",
+  },
+];
+
 export function DictationPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -40,7 +65,42 @@ export function DictationPanel() {
   // `useCompletion` tyhjentää sen taustalla viiveellä heti kun striimaus
   // käynnistyy. `localText` on ainoa lähde Textarean sisällölle, ja
   // `complete()` kutsutaan aina suoraan sillä.
-  const [localText, setLocalText] = useState("");
+  //
+  // Alkuarvo luetaan lazy-initializerillä suoraan localStoragesta (Tehtävä 2:
+  // Automaattinen tallennus), jotta aiemmin kesken jäänyt sanelu palautuu heti
+  // ensimmäisellä renderöinnillä sivun uudelleenlatauksen jälkeen.
+  const [localText, setLocalText] = useState(() => {
+    if (typeof window === "undefined") return "";
+    try {
+      return window.localStorage.getItem(DRAFT_STORAGE_KEY) ?? "";
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Luonnoksen lukeminen localStoragesta epäonnistui:",
+        storageError
+      );
+      return "";
+    }
+  });
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Tallennetaan tekstikentän sisältö selaimeen aina kun se muuttuu, jotta
+  // kesken jäänyt sanelu ei katoa vahingossa (esim. välilehden sulkeutuessa
+  // tai sivun päivittyessä).
+  useEffect(() => {
+    try {
+      if (localText) {
+        window.localStorage.setItem(DRAFT_STORAGE_KEY, localText);
+      } else {
+        window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+      }
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Luonnoksen tallentaminen localStorageen epäonnistui:",
+        storageError
+      );
+    }
+  }, [localText]);
 
   const {
     completion,
@@ -175,12 +235,56 @@ export function DictationPanel() {
 
   const handleCopyAndClear = async () => {
     if (!completion) return;
-    await navigator.clipboard.writeText(completion);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-    // Nämä tyhjentävät ruudun vasta kun olet aidosti kopioinut tekstin
-    setCompletion("");
-    setLocalText("");
+    try {
+      await navigator.clipboard.writeText(completion);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+      // Nämä tyhjentävät ruudun vasta kun olet aidosti kopioinut tekstin
+      setCompletion("");
+      setLocalText("");
+      toast.success("Kanta-kirjaus kopioitu leikepöydälle", {
+        description: "Voit nyt liittää sen potilastietojärjestelmään.",
+      });
+    } catch (clipboardError) {
+      console.error(
+        "[Kirjaajanne] Tekstin kopiointi leikepöydälle epäonnistui:",
+        clipboardError
+      );
+      toast.error("Kopiointi epäonnistui", {
+        description: "Leikepöydälle kirjoittaminen ei onnistunut. Yritä uudelleen.",
+      });
+    }
+  };
+
+  // Pikamallineen lisäys (Tehtävä 3): kirjoittaa valmiin tekstirungon
+  // kursorin nykyiseen kohtaan Textareassa, jotta käyttäjä voi jatkaa
+  // täydentämistä siitä. Jos kursorin sijaintia ei jostain syystä saada
+  // selville (esim. ref ei vielä ole kiinnittynyt), teksti lisätään loppuun.
+  const handleQuickInsert = (template: string) => {
+    const textarea = textareaRef.current;
+
+    if (!textarea) {
+      setLocalText((prev) => `${prev}${template}`);
+      return;
+    }
+
+    const selectionStart = textarea.selectionStart ?? localText.length;
+    const selectionEnd = textarea.selectionEnd ?? localText.length;
+    const nextValue =
+      localText.slice(0, selectionStart) +
+      template +
+      localText.slice(selectionEnd);
+
+    setLocalText(nextValue);
+
+    // Siirretään kursori lisätyn tekstin loppuun ja palautetaan fokus
+    // Textareaan seuraavalla renderöintikierroksella (arvo on siihen mennessä
+    // päivittynyt DOM:iin).
+    requestAnimationFrame(() => {
+      const caretPosition = selectionStart + template.length;
+      textarea.focus();
+      textarea.setSelectionRange(caretPosition, caretPosition);
+    });
   };
 
   return (
@@ -263,7 +367,22 @@ export function DictationPanel() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <form onSubmit={onFormSubmit} className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_INSERT_TEMPLATES.map((quickInsert) => (
+                  <Button
+                    key={quickInsert.label}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isLoading || isTranscribing}
+                    onClick={() => handleQuickInsert(quickInsert.template)}
+                  >
+                    {quickInsert.label}
+                  </Button>
+                ))}
+              </div>
               <Textarea
+                ref={textareaRef}
                 value={localText}
                 onChange={(e) => setLocalText(e.target.value)}
                 placeholder="Esim. Potilas kertoo alaselän kivusta, joka on jatkunut kaksi viikkoa nostotilanteen jälkeen..."
