@@ -12,15 +12,18 @@ import { useCompletion } from "@ai-sdk/react";
 import { toast } from "sonner";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { useSessionRecorder } from "@/hooks/use-session-recorder";
+import { useSubscription } from "@/hooks/use-subscription";
 import {
   AlertCircle,
   FileText,
   Loader2,
+  Lock,
   Mic,
   Radio,
   ScrollText,
   Send,
   Settings,
+  Sparkles,
   Square,
   Trash2,
   X,
@@ -135,6 +138,49 @@ const CLIENT_FALLBACK_TEMPLATES: DictationTemplate[] = [
 ];
 
 export function DictationPanel() {
+  // Stripe-maksumuuri (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk).
+  // `isActive` on totuus vasta kun `/api/subscription-status` on ehtinyt
+  // vastata (status !== "loading") — ennen sitä käyttöliittymä näyttää
+  // neutraalin latautumistilan sen sijaan että väläyttäisi maksumuuria
+  // ensin näkyviin virheellisesti.
+  const {
+    status: subscriptionStatus,
+    isActive: hasActiveSubscription,
+    isLoading: isSubscriptionLoading,
+    isStartingCheckout,
+    startCheckout,
+    refresh: refreshSubscription,
+  } = useSubscription();
+
+  // Jos käyttäjä palaa Stripe Checkoutista onnistuneesti (success_url
+  // sisältää `?checkout=success`), tarkistetaan tilaustilanne heti
+  // uudelleen sen sijaan että odotettaisiin sivun seuraavaa lataamista —
+  // webhookin (checkout.session.completed) pitäisi ehtiä päivittää
+  // Supabase muutamassa sekunnissa.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      console.log(
+        "[Kirjaajanne] Palattu Stripe Checkoutista onnistuneesti, tarkistetaan tilaustilanne uudelleen."
+      );
+      refreshSubscription();
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (params.get("checkout") === "cancelled") {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleStartTrialClick = async () => {
+    try {
+      await startCheckout();
+    } catch {
+      toast.error("Kokeilun aloitus epäonnistui", {
+        description: "Yritä hetken kuluttua uudelleen.",
+      });
+    }
+  };
+
   const [isOpen, setIsOpen] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
@@ -768,6 +814,74 @@ export function DictationPanel() {
       textarea.setSelectionRange(caretPosition, caretPosition);
     });
   };
+
+  // ==========================================================================
+  // STRIPE-MAKSUMUURI (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk).
+  //
+  // Jos tilaustilanne on vielä latautumassa, näytetään neutraali
+  // latautumistila. Jos tilaus ei ole aktiivinen (trialing/active), koko
+  // sanelutoiminto (sekä "Vapaa sanelu" että "Sessio-nauhoitus") estetään
+  // kokonaan ja tilalle näytetään "Aloita 30 pv ilmainen kokeilu" -painike,
+  // joka ohjaa Stripe Checkoutiin.
+  // ==========================================================================
+  if (isSubscriptionLoading) {
+    return (
+      <div className="flex w-full flex-col items-center gap-4">
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 sm:h-32 sm:w-32">
+          <Loader2 className="size-10 animate-spin text-primary/40 sm:size-12" />
+        </div>
+        <span className="text-sm text-muted-foreground">
+          Tarkistetaan tilaustilannetta...
+        </span>
+      </div>
+    );
+  }
+
+  if (!hasActiveSubscription) {
+    return (
+      <Card className="w-full max-w-md text-center">
+        <CardHeader className="items-center">
+          <div className="mb-2 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Lock className="size-6" />
+          </div>
+          <CardTitle className="text-xl">
+            {subscriptionStatus === "past_due" || subscriptionStatus === "canceled"
+              ? "Tilauksesi ei ole aktiivinen"
+              : "Kokeile Kirjaajannetta ilmaiseksi"}
+          </CardTitle>
+          <CardDescription>
+            {subscriptionStatus === "past_due"
+              ? "Viimeisin veloitus epäonnistui. Päivitä maksutietosi jatkaaksesi sanelun käyttöä."
+              : subscriptionStatus === "canceled"
+                ? "Tilauksesi on päättynyt. Aloita uusi tilaus jatkaaksesi sanelun käyttöä."
+                : "30 päivän ilmainen kokeilu, ei sitoumuksia. Kokeilun jälkeen 20 €/kk. Peruuta koska tahansa."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-3">
+          <Button
+            size="lg"
+            onClick={handleStartTrialClick}
+            disabled={isStartingCheckout}
+            className="w-full gap-2"
+          >
+            {isStartingCheckout ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Sparkles className="size-4" />
+            )}
+            {isStartingCheckout
+              ? "Ohjataan maksusivulle..."
+              : subscriptionStatus === "past_due" || subscriptionStatus === "canceled"
+                ? "Jatka tilausta"
+                : "Aloita 30 pv ilmainen kokeilu"}
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Turvallinen maksu Stripen kautta. Ei veloitusta ennen kokeilun päättymistä.
+          </span>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="flex w-full flex-col items-center gap-4">
