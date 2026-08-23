@@ -4,7 +4,7 @@ import {
   MapPin,
   Calendar,
   Compass,
-  Tent,
+  Waves,
   Flame,
   ShieldCheck,
   Star,
@@ -25,14 +25,14 @@ import { MOCK_LISTINGS } from './data/mockListings'
 
 const CATEGORIES = [
   { id: 'all', name: 'Kaikki varusteet', icon: Compass },
-  { id: 'tents', name: 'Teltat & Majoitus', icon: Tent },
-  { id: 'backpacks', name: 'Rinkat & Reput', icon: Package },
+  { id: 'sup_boards', name: 'SUP-laudat & Vesi', icon: Waves },
   { id: 'cooking', name: 'Retkikeittimet & Ruokailu', icon: Flame },
 ]
 
 const LOCATIONS = [
   'Koko Oulu',
   'Tuira',
+  'Nallikari',
   'Keskusta',
   'Linnanmaa',
   'Kaakkuri'
@@ -103,7 +103,7 @@ export default function App() {
           {/* Brand Logo */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gearspot-800 flex items-center justify-center text-white shadow-sm ring-1 ring-gearspot-900/10 shrink-0">
-              <Tent className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300 stroke-[2.2]" />
+              <Waves className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300 stroke-[2.2]" />
             </div>
             <div className="flex items-center">
               <span className="text-lg sm:text-xl font-bold tracking-tight text-gearspot-900 font-heading">
@@ -189,18 +189,18 @@ export default function App() {
           {/* Micro Tag */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50/90 border border-emerald-200/60 text-gearspot-800 text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span className="truncate">Ulkoiluvarusteiden vertaisvuokraus Oulussa</span>
+            <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden vuokraus Oulussa</span>
           </div>
 
           {/* Main Title */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-neutral-900 font-heading leading-[1.15] sm:leading-[1.12]">
-            Vuokraa huippuvarusteet retkille. <br className="hidden sm:inline" />
+            Vuokraa SUP-laudat ja varusteet. <br className="hidden sm:inline" />
             <span className="text-gearspot-800">Suoraan paikallisilta oululaisilta.</span>
           </h1>
 
           {/* Subtitle */}
           <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto font-normal leading-relaxed">
-            Kaikkea ei tarvitse ostaa omaksi varastoon. Nappaa laadukas teltta, rinkka tai keitin viikonlopun seikkailuun naapuriltasi Oulussa.
+            Kaikkea ei tarvitse ostaa omaksi varastoon. Nappaa laadukas SUP-lauta tai retkikeitin päiväksi tai viikonlopuksi naapuriltasi Oulussa.
           </p>
 
           {/* 3. AIRY & MOBILE RESPONSIVE SEARCH BAR COMPONENT */}
@@ -212,7 +212,7 @@ export default function App() {
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400 shrink-0" />
                 <input
                   type="text"
-                  placeholder="Mitä varustetta etsit? (esim. Hilleberg, rinkka...)"
+                  placeholder="Mitä varustetta etsit? (esim. Saimaa SUP, Red Paddle...)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-transparent text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none"
