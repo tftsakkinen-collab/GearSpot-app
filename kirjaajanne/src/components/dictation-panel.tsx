@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import { useCompletion } from "@ai-sdk/react";
 import { toast } from "sonner";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
@@ -29,6 +35,41 @@ function formatRecordingTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+// Tehtävä 1 (v2.1): Markdown-siivous leikepöydälle.
+// Malli palauttaa Kanta-kirjauksen Markdown-muotoiluin (**Esitiedot**,
+// listat jne.), jotka näytetään käyttöliittymässä sellaisenaan visuaalisen
+// selkeyden vuoksi. Potilastietojärjestelmiin (Pegasos/Lifecare/Kanta) ei
+// kuitenkaan saa liittää raakaa Markdownia, joten leikepöydälle vietävä
+// teksti puhdistetaan aina tällä funktiolla ennen `navigator.clipboard
+// .writeText()`-kutsua. UI:n oma esikatselu (`<pre>`) pysyy koskemattomana.
+function stripMarkdownForClipboard(markdown: string): string {
+  return (
+    markdown
+      // Otsikot ("# ", "## " jne. rivin alussa)
+      .replace(/^\s{0,3}#{1,6}\s+/gm, "")
+      // Lihavoitu + kursivoitu yhdessä (***teksti*** / ___teksti___)
+      .replace(/(\*\*\*|___)([^*_]+?)\1/g, "$2")
+      // Lihavoitu (**teksti** / __teksti__)
+      .replace(/(\*\*|__)([^*_]+?)\1/g, "$2")
+      // Kursivoitu (*teksti* / _teksti_)
+      .replace(/(\*|_)([^*_]+?)\1/g, "$2")
+      // Inline-koodi (`teksti` tai ```teksti```)
+      .replace(/`{1,3}([^`]+?)`{1,3}/g, "$1")
+      // Lainausmerkinnät rivin alussa ("> ")
+      .replace(/^>\s?/gm, "")
+      // Listamerkit ("- ", "* ", "+ ") normalisoidaan yhdenmukaisiksi
+      // ajatusviivoiksi, jotta jäljelle ei jää tulkinnanvaraisia merkkejä
+      .replace(/^\s*[-*+]\s+/gm, "- ")
+      // Rivien perässä oleva ylimääräinen välilyönti pois
+      .replace(/[ \t]+$/gm, "")
+      // Useampi kuin kaksi peräkkäistä rivinvaihtoa tiivistetään kahdeksi,
+      // jotta teksti pysyy siististi rivitettynä eikä sisällä turhia
+      // tyhjiä välejä
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  );
 }
 
 // Selaimen localStorage-avain sanelu-luonnoksen automaattitallennukselle
@@ -83,6 +124,21 @@ export function DictationPanel() {
   });
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Tekstikentän ergonomia (Tehtävä 3, v2.1): Textarea kasvaa dynaamisesti
+  // pystysuunnassa sisällön mukana, jotta pitkää tutkimusta ei tarvitse
+  // scrollata pienen laatikon sisällä. Toteutettu ilman uutta riippuvuutta
+  // (esim. react-textarea-autosize): korkeus nollataan "autoksi" ennen
+  // mittausta, jotta selain laskee todellisen `scrollHeight`in myös silloin
+  // kun tekstiä poistetaan, ja asetetaan sitten korkeudeksi sisällön vaatima
+  // tila. `min-h-32`-luokka (Tailwind) toimii edelleen alarajana.
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [localText]);
 
   // Tallennetaan tekstikentän sisältö selaimeen aina kun se muuttuu, jotta
   // kesken jäänyt sanelu ei katoa vahingossa (esim. välilehden sulkeutuessa
@@ -222,8 +278,12 @@ export function DictationPanel() {
   // `localText` on ainoa totuudenlähde tekstikentälle, joten `complete()`
   // kutsutaan suoraan sillä eikä SDK:n `input`-tilalla tarvitse enää
   // ohittaa tyhjenemistä setTimeoutilla.
-  const onFormSubmit = (event: FormEvent) => {
-    event.preventDefault();
+  //
+  // Eriytetty omaksi funktiokseen (Tehtävä 2: Power User -pikanäppäimet),
+  // jotta sama liipaisulogiikka on käytössä sekä lomakkeen submit-
+  // tapahtumassa että Ctrl/Cmd+Enter-pikanäppäimessä.
+  const triggerCompletion = () => {
+    if (isLoading || isTranscribing) return;
     if (localText.trim().length === 0) {
       console.warn("[Kirjaajanne] Sanelu on tyhjä, API-kutsua ei lähetetä.");
       return;
@@ -233,10 +293,30 @@ export function DictationPanel() {
     void complete(localText);
   };
 
+  const onFormSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    triggerCompletion();
+  };
+
+  // Power user -pikanäppäin (Tehtävä 2): Ctrl+Enter (Windows/Linux) tai
+  // Cmd+Enter (Mac) liipaisee "Muodosta Kanta-kirjaus" -toiminnon suoraan
+  // tekstikentästä ilman että käyttäjän tarvitsee tarttua hiireen.
+  const handleTextareaKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    const isSubmitShortcut = (event.ctrlKey || event.metaKey) && event.key === "Enter";
+    if (!isSubmitShortcut) return;
+
+    event.preventDefault();
+    triggerCompletion();
+  };
+
   const handleCopyAndClear = async () => {
     if (!completion) return;
     try {
-      await navigator.clipboard.writeText(completion);
+      // Leikepöydälle viedään aina puhdas Plain Text -versio (Tehtävä 1),
+      // vaikka `completion`-tila itsessään pysyy Markdown-muotoiltuna
+      // yllä olevaa visuaalista esikatselua varten.
+      const plainTextForClipboard = stripMarkdownForClipboard(completion);
+      await navigator.clipboard.writeText(plainTextForClipboard);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
       // Nämä tyhjentävät ruudun vasta kun olet aidosti kopioinut tekstin
@@ -385,15 +465,19 @@ export function DictationPanel() {
                 ref={textareaRef}
                 value={localText}
                 onChange={(e) => setLocalText(e.target.value)}
+                onKeyDown={handleTextareaKeyDown}
                 placeholder="Esim. Potilas kertoo alaselän kivusta, joka on jatkunut kaksi viikkoa nostotilanteen jälkeen..."
-                className="min-h-32"
+                className="min-h-32 resize-none overflow-hidden"
                 disabled={isLoading || isTranscribing}
               />
-              <div className="flex justify-end">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">
+                  Vinkki: Ctrl+Enter (Windows) / Cmd+Enter (Mac) muodostaa kirjauksen suoraan tekstikentästä.
+                </span>
                 <Button
                   type="submit"
                   disabled={isLoading || isTranscribing || localText.trim().length === 0}
-                  className="gap-1.5"
+                  className="shrink-0 gap-1.5"
                 >
                   {isLoading ? (
                     <Loader2 className="size-4 animate-spin" />
