@@ -16,6 +16,7 @@ import {
   Loader2,
   Mic,
   Send,
+  Settings,
   Square,
   X,
 } from "lucide-react";
@@ -30,6 +31,10 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import {
+  TemplateAdminDialog,
+  type DictationTemplate,
+} from "@/components/template-admin-dialog";
 
 function formatRecordingTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -72,27 +77,37 @@ function stripMarkdownForClipboard(markdown: string): string {
   );
 }
 
-// Selaimen localStorage-avain sanelu-luonnoksen automaattitallennukselle
-// (Tehtävä 2: Automaattinen tallennus).
+// Selaimen localStorage-avaimet automaattitallennukselle (Tehtävä 3, v2.2:
+// tallennetaan nyt sekä "Vapaa sanelu" -teksti että valmis Kanta-kirjaus).
 const DRAFT_STORAGE_KEY = "kirjaajanne:sanelu-luonnos";
+const COMPLETION_STORAGE_KEY = "kirjaajanne:kanta-kirjaus-luonnos";
 
-// Pikamallineet (Tehtävä 3): valmiit tekstirungot, jotka lisätään kursorin
-// kohdalle Textareaan ja joita käyttäjä voi täydentää.
-const QUICK_INSERT_TEMPLATES: { label: string; template: string }[] = [
+// Pikamallineet (Tehtävä 3 v2.1 / Tehtävä 1 v2.2): tästä eteenpäin pohjat
+// haetaan dynaamisesti `/api/templates`-reitiltä (Supabase `templates`-
+// taulu). Tämä on vain viimeinen varajoukko siltä varalta, että itse
+// `fetch`-kutsu epäonnistuu kokonaan (esim. verkkokatkos) — reitti itse
+// palauttaa jo oman kovakoodatun varajoukkonsa, jos Supabase ei vastaa.
+const CLIENT_FALLBACK_TEMPLATES: DictationTemplate[] = [
   {
+    id: "fallback-tmd-tutkimus",
     label: "TMD-tutkimus",
-    template:
+    template_text:
       "TMD-tutkimus: mandibulan liikelaajuudet mitattu (depressio/elevaatio/protraktio/retraktio), palpaatioarkuus m. masseter ja m. temporalis, niveläänet ja mahdollinen deviaatio avattaessa. ",
+    sort_order: 1,
   },
   {
+    id: "fallback-manuaaliterapia",
     label: "Manuaaliterapia",
-    template:
+    template_text:
       "Manuaaliterapia: pehmytkudoskäsittely ja nivelmobilisointi kohdealueelle. Hoidon jälkeen liikelaajuus ja kipu koettu subjektiivisesti parantuneeksi. ",
+    sort_order: 2,
   },
   {
+    id: "fallback-ergonomiaohjaus",
     label: "Ergonomiaohjaus",
-    template:
+    template_text:
       "Ergonomiaohjaus: käytiin läpi työpisteen/arjen ergonomia ja annettiin kirjalliset kotiharjoitteet kuormituksen tasaamiseksi. ",
+    sort_order: 3,
   },
 ];
 
@@ -102,12 +117,72 @@ export function DictationPanel() {
   const [micError, setMicError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
 
+  // Dynaamiset sanelupohjat (Tehtävä 1, v2.2): haetaan Supabasesta
+  // `/api/templates`-reitin kautta. Alkuarvo on paikallinen varajoukko,
+  // jotta napit näkyvät heti eivätkä välähdä tyhjinä ennen ensimmäistä
+  // fetch-vastausta.
+  const [templates, setTemplates] = useState<DictationTemplate[]>(
+    CLIENT_FALLBACK_TEMPLATES
+  );
+  const [isTemplateAdminOpen, setIsTemplateAdminOpen] = useState(false);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    fetch("/api/templates")
+      .then((response) => response.json())
+      .then((data: { templates?: DictationTemplate[] }) => {
+        if (isCancelled) return;
+        if (data.templates && data.templates.length > 0) {
+          setTemplates(data.templates);
+        }
+      })
+      .catch((fetchError) => {
+        console.warn(
+          "[Kirjaajanne] Sanelupohjien haku epäonnistui, käytetään paikallista varajoukkoa:",
+          fetchError
+        );
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  // Automaattitallennuksen tila-indikaattori (Tehtävä 3, v2.2): näytetään
+  // pieni "Tallennetaan..." / "Tallennettu" -viesti aina kun jompikumpi
+  // seuratuista kentistä (Vapaa sanelu tai Kanta-kirjaus) muuttuu.
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">(
+    "idle"
+  );
+  const saveStatusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+
+  // Huom: `setSaveStatus`-kutsut on tarkoituksella ajoitettu `setTimeout`-
+  // kutsujen sisään eikä kutsuta suoraan effektin rungossa, jotta
+  // react-hooks/set-state-in-effect-sääntö ei laukea. Tämä on turvallista,
+  // koska indikaattori on puhtaasti visuaalinen sivuvaikutus (synkronoi
+  // Reactin tilan localStorage-kirjoituksen kanssa), ei renderöinnin aikana
+  // tarvittavaa tietoa.
+  const flashSaveStatus = () => {
+    if (saveStatusTimeoutRef.current !== null) {
+      clearTimeout(saveStatusTimeoutRef.current);
+    }
+    saveStatusTimeoutRef.current = setTimeout(() => {
+      setSaveStatus("saving");
+      saveStatusTimeoutRef.current = setTimeout(() => {
+        setSaveStatus("saved");
+      }, 400);
+    }, 0);
+  };
+
   // Tekstikenttä on täysin irrotettu Vercel AI SDK:n `input`-tilasta, koska
   // `useCompletion` tyhjentää sen taustalla viiveellä heti kun striimaus
   // käynnistyy. `localText` on ainoa lähde Textarean sisällölle, ja
   // `complete()` kutsutaan aina suoraan sillä.
   //
-  // Alkuarvo luetaan lazy-initializerillä suoraan localStoragesta (Tehtävä 2:
+  // Alkuarvo luetaan lazy-initializerillä suoraan localStoragesta (Tehtävä 3:
   // Automaattinen tallennus), jotta aiemmin kesken jäänyt sanelu palautuu heti
   // ensimmäisellä renderöinnillä sivun uudelleenlatauksen jälkeen.
   const [localText, setLocalText] = useState(() => {
@@ -122,6 +197,23 @@ export function DictationPanel() {
       return "";
     }
   });
+
+  // Kanta-kirjauksen (valmiin, tekoälyn tuottaman tekstin) luonnos
+  // palautetaan samalla periaatteella kuin "Vapaa sanelu" -kenttä, jotta
+  // molemmat tekstikentät säilyvät vahingossa tapahtuneen sivunpäivityksen
+  // yli (Tehtävä 3, v2.2).
+  const initialCompletionDraft = (() => {
+    if (typeof window === "undefined") return "";
+    try {
+      return window.localStorage.getItem(COMPLETION_STORAGE_KEY) ?? "";
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Kanta-kirjausluonnoksen lukeminen localStoragesta epäonnistui:",
+        storageError
+      );
+      return "";
+    }
+  })();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -140,9 +232,11 @@ export function DictationPanel() {
     textarea.style.height = `${textarea.scrollHeight}px`;
   }, [localText]);
 
-  // Tallennetaan tekstikentän sisältö selaimeen aina kun se muuttuu, jotta
-  // kesken jäänyt sanelu ei katoa vahingossa (esim. välilehden sulkeutuessa
-  // tai sivun päivittyessä).
+  // Tallennetaan "Vapaa sanelu" -tekstikentän sisältö selaimeen aina kun se
+  // muuttuu, jotta kesken jäänyt sanelu ei katoa vahingossa (esim.
+  // välilehden sulkeutuessa tai sivun päivittyessä). `flashSaveStatus()`
+  // näyttää käyttäjälle lyhyen "Tallennetaan..." → "Tallennettu" -viestin
+  // (Tehtävä 3, v2.2).
   useEffect(() => {
     try {
       if (localText) {
@@ -150,6 +244,7 @@ export function DictationPanel() {
       } else {
         window.localStorage.removeItem(DRAFT_STORAGE_KEY);
       }
+      flashSaveStatus();
     } catch (storageError) {
       console.warn(
         "[Kirjaajanne] Luonnoksen tallentaminen localStorageen epäonnistui:",
@@ -167,6 +262,9 @@ export function DictationPanel() {
   } = useCompletion({
     api: "/api/chat",
     streamProtocol: "text",
+    // Kanta-kirjauksen luonnos palautetaan localStoragesta (Tehtävä 3,
+    // v2.2), samaan tapaan kuin "Vapaa sanelu" -kenttä yllä.
+    initialCompletion: initialCompletionDraft,
     onFinish: (_prompt, finishedCompletion) => {
       console.log(
         "[Kirjaajanne] API-kutsu onnistui, Kanta-kirjaus vastaanotettu:",
@@ -177,6 +275,35 @@ export function DictationPanel() {
       console.error("[Kirjaajanne] API-kutsu epäonnistui:", apiError);
     },
   });
+
+  // Tallennetaan myös valmis Kanta-kirjaus selaimeen aina kun se muuttuu
+  // (Tehtävä 3, v2.2). Näin sekä raaka sanelu että jo jäsennelty kirjaus
+  // palautuvat automaattisesti, jos sivu latautuu vahingossa uudelleen
+  // ennen kuin käyttäjä on ehtinyt kopioida tekstin talteen.
+  useEffect(() => {
+    try {
+      if (completion) {
+        window.localStorage.setItem(COMPLETION_STORAGE_KEY, completion);
+      } else {
+        window.localStorage.removeItem(COMPLETION_STORAGE_KEY);
+      }
+      flashSaveStatus();
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Kanta-kirjausluonnoksen tallentaminen localStorageen epäonnistui:",
+        storageError
+      );
+    }
+  }, [completion]);
+
+  // Siivotaan tallennusindikaattorin ajastin komponentin purkautuessa.
+  useEffect(() => {
+    return () => {
+      if (saveStatusTimeoutRef.current !== null) {
+        clearTimeout(saveStatusTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // useAudioRecorder (oma, natiivi MediaRecorder-pohjainen hook): hoitaa
   // mikrofonin käytön, nauhoituksen ja palauttaa valmiin äänen
@@ -435,27 +562,39 @@ export function DictationPanel() {
                 jäsentää sen Kanta-yhteensopivaksi kirjaukseksi.
               </CardDescription>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setIsOpen(false)}
-              aria-label="Piilota sanelupaneeli"
-            >
-              <X className="size-4" />
-            </Button>
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setIsTemplateAdminOpen(true)}
+                aria-label="Hallitse sanelupohjia"
+                title="Hallitse sanelupohjia"
+              >
+                <Settings className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setIsOpen(false)}
+                aria-label="Piilota sanelupaneeli"
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <form onSubmit={onFormSubmit} className="flex flex-col gap-3">
               <div className="flex flex-wrap gap-1.5">
-                {QUICK_INSERT_TEMPLATES.map((quickInsert) => (
+                {templates.map((quickInsert) => (
                   <Button
-                    key={quickInsert.label}
+                    key={quickInsert.id}
                     type="button"
                     variant="outline"
                     size="sm"
                     disabled={isLoading || isTranscribing}
-                    onClick={() => handleQuickInsert(quickInsert.template)}
+                    onClick={() => handleQuickInsert(quickInsert.template_text)}
                   >
                     {quickInsert.label}
                   </Button>
@@ -470,22 +609,30 @@ export function DictationPanel() {
                 className="min-h-32 resize-none overflow-hidden"
                 disabled={isLoading || isTranscribing}
               />
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs text-muted-foreground">
-                  Vinkki: Ctrl+Enter (Windows) / Cmd+Enter (Mac) muodostaa kirjauksen suoraan tekstikentästä.
-                </span>
-                <Button
-                  type="submit"
-                  disabled={isLoading || isTranscribing || localText.trim().length === 0}
-                  className="shrink-0 gap-1.5"
-                >
-                  {isLoading ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Send className="size-4" />
-                  )}
-                  {isLoading ? "Kirjataan..." : "Muodosta Kanta-kirjaus"}
-                </Button>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    Vinkki: Ctrl+Enter (Windows) / Cmd+Enter (Mac) muodostaa kirjauksen suoraan tekstikentästä.
+                  </span>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || isTranscribing || localText.trim().length === 0}
+                    className="shrink-0 gap-1.5"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Send className="size-4" />
+                    )}
+                    {isLoading ? "Kirjataan..." : "Muodosta Kanta-kirjaus"}
+                  </Button>
+                </div>
+                {/* Automaattitallennuksen tila-indikaattori (Tehtävä 3, v2.2) */}
+                {saveStatus !== "idle" && (
+                  <span className="text-xs text-muted-foreground/70">
+                    {saveStatus === "saving" ? "Tallennetaan…" : "Tallennettu"}
+                  </span>
+                )}
               </div>
             </form>
 
@@ -523,6 +670,14 @@ export function DictationPanel() {
           </CardContent>
         </Card>
       )}
+
+      <TemplateAdminDialog
+        open={isTemplateAdminOpen}
+        onOpenChange={setIsTemplateAdminOpen}
+        onTemplateCreated={(newTemplate) =>
+          setTemplates((prev) => [...prev, newTemplate])
+        }
+      />
     </div>
   );
 }

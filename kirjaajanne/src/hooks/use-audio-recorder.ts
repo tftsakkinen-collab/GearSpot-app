@@ -76,7 +76,18 @@ export function useAudioRecorder(
           stopTracks();
         };
 
-        mediaRecorder.start();
+        // Whisper-optimointi (Tehtävä 4, v2.2): `start(1000)` pyytää
+        // selainta vapauttamaan äänidatan noin sekunnin välein sen sijaan
+        // että koko nauhoitus pidettäisiin yhtenä lohkona muistissa vasta
+        // `stop()`-kutsuun asti. Tämä EI keskeytä eikä katkaise nauhoitusta
+        // millään tavalla — `isRecording`-tila ja mikrofonin stream pysyvät
+        // muuttumattomina koko ajan, ja pitkätkin miettimistauot (hiljaisuus)
+        // tallentuvat normaalisti osaksi samaa nauhoitusta. Ainoa muutos on,
+        // että pitkä sanelu ei enää kasvata yhtä valtavaa Blob-olioa vasta
+        // lopussa, mikä tekee pidemmistä (esim. usean minuutin) saneluista
+        // vakaampia sekä selaimen muistinkäytön että lopullisen
+        // /api/transcribe-lähetyksen kannalta.
+        mediaRecorder.start(1000);
         setIsRecording(true);
         setRecordingTime(0);
 

@@ -3,11 +3,35 @@ import { openai } from "@ai-sdk/openai";
 
 export const runtime = "nodejs";
 
+// Whisper-litterointi pitkistä, taukoja sisältävistä saneluista voi kestää
+// oletusaikakatkaisua (10s) pidempään. Nostetaan Vercelin serverless-
+// funktion suurin sallittu suoritusaika 60 sekuntiin, jotta pitkä pohdinta
+// tai pitkä sanelu ei koskaan katkea kesken Whisper-kutsun (Tehtävä 4).
+export const maxDuration = 60;
+
 /**
  * OpenAI Whisper -malli äänen litterointiin. Vaihda tarvittaessa esim.
  * "gpt-4o-mini-transcribe" -malliin, jos Whisper-1 ei ole käytettävissä.
  */
 const TRANSCRIPTION_MODEL_ID = "whisper-1";
+
+/**
+ * Whisper API -optimointi (Tehtävä 4, v2.2): `prompt`-parametri ei toimi
+ * järjestelmäohjeena, vaan se antaa Whisperille esimerkin oikeasta
+ * sanastosta ja kirjoitusasusta, mikä ohjaa mallia tunnistamaan
+ * harvinaisemmat, foneettisesti haastavat erikoistermit oikein suomeksi
+ * sen sijaan että se arvaisi lähimmän yleiskielen sanan tilalle.
+ * Sanasto on koottu samasta kliinisestä erikoisalasta kuin Kanta-kirjaus-
+ * promptissa (ks. `src/app/api/chat/route.ts`): TMD/purentaelimistö,
+ * subokkipitaalialue ja manuaaliterapia/ergonomia.
+ */
+const TRANSCRIPTION_VOCABULARY_PROMPT =
+  "TMD, masseter, temporalis, pterygoideus, subokkipitaalialue, subokkipitaalilihakset, " +
+  "mandibula, depressio, elevaatio, protraktio, retraktio, diskusdislokaatio, bruksismi, " +
+  "manuaalinen mobilisointi, nivelmobilisointi, pehmytkudoskäsittely, faskiakäsittely, " +
+  "triggerpiste, neurodynaaminen käsittely, liikelaajuustesti, palpaatioarkuus, " +
+  "cervikogeeninen päänsärky, ergonomia, työfysioterapia, kuormitusergonomia, " +
+  "työpistearvio, kotiharjoitteet, OMT-fysioterapia, Kanta-kirjaus.";
 
 /**
  * Poimii virheestä mahdollisimman paljon debug-tietoa kehityksen ajaksi.
@@ -96,6 +120,16 @@ export async function POST(req: Request) {
     const { text } = await transcribe({
       model: openai.transcription(TRANSCRIPTION_MODEL_ID),
       audio: audioBuffer,
+      providerOptions: {
+        openai: {
+          // Ohjaa Whisperiä tunnistamaan suomenkielinen fysioterapia- ja
+          // anatomiasanasto oikein (Tehtävä 4). `language` lukitaan
+          // suomeksi, jotta malli ei koskaan yritä tunnistaa kieltä
+          // väärin lyhyistä tai hiljaisista nauhoituksen alkupätkistä.
+          prompt: TRANSCRIPTION_VOCABULARY_PROMPT,
+          language: "fi",
+        },
+      },
     });
 
     console.log("[Kirjaajanne] /api/transcribe: Whisper-litterointi onnistui:", text);
