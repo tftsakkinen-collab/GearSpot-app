@@ -51,7 +51,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 19,
     isAvailable: true,
     tag: "Premium",
-    imageUrl: "https://images.unsplash.com/photo-1517649763962-0c6232661a0b?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1508873696983-2df515122519?auto=format&fit=crop&w=800&q=80",
     specs: [
       "Kantavuus: 120 kg",
       "Varusteet: Hiilikuitumela, Titan 2 -pumppu & karkuremmi",
@@ -82,7 +82,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 24,
     isAvailable: true,
     tag: "Helppo & Vakaa",
-    imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Säädettävä mela, kaksitoimipumppu & karkuremmi",
@@ -113,7 +113,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 18,
     isAvailable: true,
     tag: "Retkimalli",
-    imageUrl: "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&q=80",
     specs: [
       "Kantavuus: 160 kg",
       "Varusteet: Lasikuitumela, korkeapainepumppu & karkuremmi",
