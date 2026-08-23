@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -10,14 +11,18 @@ import {
 import { useCompletion } from "@ai-sdk/react";
 import { toast } from "sonner";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
+import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import {
   AlertCircle,
   FileText,
   Loader2,
   Mic,
+  Radio,
+  ScrollText,
   Send,
   Settings,
   Square,
+  Trash2,
   X,
 } from "lucide-react";
 
@@ -40,6 +45,19 @@ function formatRecordingTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+// Sessio-tila (Ambient Clinical Intelligence, Tehtävä 1): pidempi kello,
+// joka näyttää tunnit myös silloin kun sessio venyy yli tunnin mittaiseksi.
+function formatSessionTime(totalSeconds: number) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const paddedMinutes = minutes.toString().padStart(2, "0");
+  const paddedSeconds = seconds.toString().padStart(2, "0");
+  return hours > 0
+    ? `${hours}:${paddedMinutes}:${paddedSeconds}`
+    : `${minutes}:${paddedSeconds}`;
 }
 
 // Tehtävä 1 (v2.1): Markdown-siivous leikepöydälle.
@@ -81,6 +99,11 @@ function stripMarkdownForClipboard(markdown: string): string {
 // tallennetaan nyt sekä "Vapaa sanelu" -teksti että valmis Kanta-kirjaus).
 const DRAFT_STORAGE_KEY = "kirjaajanne:sanelu-luonnos";
 const COMPLETION_STORAGE_KEY = "kirjaajanne:kanta-kirjaus-luonnos";
+// Sessio-tila (Ambient Clinical Intelligence, Tehtävä 4): koko istunnon
+// kertyvä raakatranskripti pelastetaan localStorageen aina kun se kasvaa,
+// jotta selaimen kaatuminen tai välilehden vahinkosulkeminen kesken 45–60
+// minuutin nauhoituksen ei tuhoa jo litteroitua tekstiä.
+const SESSION_TRANSCRIPT_STORAGE_KEY = "kirjaajanne:sessio-transkripti";
 
 // Pikamallineet (Tehtävä 3 v2.1 / Tehtävä 1 v2.2): tästä eteenpäin pohjat
 // haetaan dynaamisesti `/api/templates`-reitiltä (Supabase `templates`-
@@ -313,6 +336,258 @@ export function DictationPanel() {
       console.error("[Kirjaajanne] Mikrofonin käyttöoikeus evätty tai laitetta ei löytynyt:", exception);
       setMicError("Mikrofonin käyttöoikeutta ei myönnetty tai laitetta ei löytynyt.");
     });
+
+  // ==========================================================================
+  // SESSIO-TILA (Ambient Clinical Intelligence) — Tehtävät 1–4.
+  //
+  // Erillinen toiminto "Vapaa sanelu" -napista: mahdollistaa koko 45–60
+  // minuutin terapiaistunnon jatkuvan nauhoittamisen, taustalitteroinnin ja
+  // lopuksi älykkään Kanta-jäsennyksen koko istunnon raakatekstistä.
+  // ==========================================================================
+
+  // Raaka, jatkuvasti kasvava sessiotranskripti (Tehtävä 2). `useRef` pitää
+  // aina tuoreimman arvon suljinten sisällä (esim. jonon käsittelijässä),
+  // `useState`-peili puolestaan pakottaa UI:n päivittymään aina kun teksti
+  // kasvaa, jotta rullaava loki näkyy käyttäjälle reaaliajassa.
+  // Palautetaan kesken jäänyt sessiotranskripti localStoragesta heti
+  // ensimmäisellä renderöinnillä lazy-initializerillä (Tehtävä 4: selaimen
+  // kaatumisen/päivityksen varalta) — sama periaate kuin `localText`- ja
+  // `completion`-luonnoksilla yllä. Lazy-initializer (eikä `useEffect`)
+  // valittiin tarkoituksella, jotta setState ei tapahdu efektin sisällä.
+  const initialSessionTranscript = (() => {
+    if (typeof window === "undefined") return "";
+    try {
+      return window.localStorage.getItem(SESSION_TRANSCRIPT_STORAGE_KEY) ?? "";
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Sessio-transkriptin lukeminen localStoragesta epäonnistui:",
+        storageError
+      );
+      return "";
+    }
+  })();
+
+  const sessionTranscriptRef = useRef(initialSessionTranscript);
+  const [sessionTranscript, setSessionTranscript] = useState(
+    initialSessionTranscript
+  );
+  const [isSessionOpen, setIsSessionOpen] = useState(
+    initialSessionTranscript.length > 0
+  );
+  const [isAnalyzingSession, setIsAnalyzingSession] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  // Näyttää käyttäjälle kuinka monta audiosegmenttiä on parhaillaan matkalla
+  // /api/transcribe-reitille, jotta "Sessio käynnissä"-indikaattori kertoo
+  // aidosti litteroinnin tilan eikä vain mikrofonin tilan.
+  const [pendingSegmentCount, setPendingSegmentCount] = useState(0);
+  const sessionLogEndRef = useRef<HTMLDivElement>(null);
+
+  // Rullaa sessio-lokin aina alimpaan riviin uuden litteroinnin saapuessa.
+  useEffect(() => {
+    sessionLogEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [sessionTranscript]);
+
+  // Yksi audiosegmentti litteroidaan ja lisätään sessiotranskriptiin.
+  // Segmentit lähetetään peräkkäin FIFO-järjestyksessä (ei rinnakkain),
+  // jotta puheen kronologia säilyy litteroinnissa oikeana, mutta itse
+  // lähetys tapahtuu aina taustalla — mikrofoni ja seuraavan segmentin
+  // tallennus jatkuvat normaalisti tämän odottaessa vastausta.
+  const transcriptionQueueRef = useRef<Promise<void>>(Promise.resolve());
+
+  const appendSessionSegment = useCallback((text: string) => {
+    if (!text) return;
+    const next = sessionTranscriptRef.current
+      ? `${sessionTranscriptRef.current} ${text}`
+      : text;
+    sessionTranscriptRef.current = next;
+    setSessionTranscript(next);
+
+    try {
+      window.localStorage.setItem(SESSION_TRANSCRIPT_STORAGE_KEY, next);
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Sessio-transkriptin tallentaminen localStorageen epäonnistui:",
+        storageError
+      );
+    }
+  }, []);
+
+  const transcribeSegment = useCallback(
+    (blob: Blob) => {
+      setPendingSegmentCount((prev) => prev + 1);
+
+      const task = async () => {
+        try {
+          console.log(
+            "[Kirjaajanne] Sessio: lähetetään audiosegmentti /api/transcribe-reitille...",
+            { size: blob.size, type: blob.type }
+          );
+
+          const formData = new FormData();
+          formData.append("audio", blob, "sessio-segmentti.webm");
+
+          const response = await fetch("/api/transcribe", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorBody = (await response.json().catch(() => null)) as {
+              error?: string;
+            } | null;
+            throw new Error(
+              errorBody?.error ||
+                `Segmentin litterointi epäonnistui (tila ${response.status}).`
+            );
+          }
+
+          const data = (await response.json()) as { text?: string };
+          const segmentText = data.text?.trim();
+
+          if (segmentText) {
+            appendSessionSegment(segmentText);
+          }
+        } catch (segmentError) {
+          // Yhden segmentin litterointivirhe ei saa katkaista koko sessiota
+          // — nauhoitus ja seuraavat segmentit jatkuvat normaalisti.
+          // Käyttäjälle näytetään kuitenkin huomautus.
+          const message =
+            segmentError instanceof Error
+              ? segmentError.message
+              : "Tuntematon virhe segmentin litteroinnissa.";
+          console.error(
+            "[Kirjaajanne] Sessio-segmentin litterointi epäonnistui:",
+            segmentError
+          );
+          setSessionError(message);
+        } finally {
+          setPendingSegmentCount((prev) => Math.max(0, prev - 1));
+        }
+      };
+
+      // Ketjutetaan tämän segmentin käsittely edellisen perään (FIFO-jono),
+      // jotta selain ei koskaan yritä ampua kymmeniä rinnakkaisia
+      // /api/transcribe-pyyntöjä pitkän session aikana.
+      transcriptionQueueRef.current = transcriptionQueueRef.current.then(task);
+    },
+    [appendSessionSegment]
+  );
+
+  const { startSession, stopSession, isSessionActive, sessionSeconds } =
+    useSessionRecorder({
+      onSegment: transcribeSegment,
+      onError: (exception) => {
+        console.error(
+          "[Kirjaajanne] Sessio-nauhoituksen mikrofonivirhe:",
+          exception
+        );
+        setSessionError(
+          "Mikrofonin käyttöoikeutta ei myönnetty tai laitetta ei löytynyt."
+        );
+      },
+    });
+
+  const handleStartSession = () => {
+    setSessionError(null);
+    setIsSessionOpen(true);
+    console.log(
+      "[Kirjaajanne] Sessio-nauhoitus aloitetaan (Ambient Clinical Intelligence)."
+    );
+    startSession();
+  };
+
+  const handleClearSession = () => {
+    sessionTranscriptRef.current = "";
+    setSessionTranscript("");
+    setCompletion("");
+    setSessionError(null);
+    try {
+      window.localStorage.removeItem(SESSION_TRANSCRIPT_STORAGE_KEY);
+    } catch (storageError) {
+      console.warn(
+        "[Kirjaajanne] Sessio-transkriptin poistaminen localStoragesta epäonnistui:",
+        storageError
+      );
+    }
+  };
+
+  // "Päätä sessio ja luo kirjaus" (Tehtävä 3): pysäyttää nauhoituksen,
+  // odottaa että kaikki jonossa olevat segmentit (mukaan lukien viimeinen)
+  // on litteroitu, ja lähettää sitten koko kertyneen raakatekstin uudelle
+  // /api/analyze-session-reitille tiukkaa Kanta-jäsennystä varten.
+  const handleFinishSession = async () => {
+    setSessionError(null);
+
+    if (isSessionActive) {
+      console.log(
+        "[Kirjaajanne] Sessio päätetään, odotetaan viimeistä audiosegmenttiä..."
+      );
+      await stopSession();
+    }
+
+    // Odotetaan koko litterointijonon tyhjentymistä, jotta kaikki segmentit
+    // (myös viimeinen) ehtivät varmasti sessionTranscriptiin ennen analyysiä.
+    await transcriptionQueueRef.current;
+
+    const finalTranscript = sessionTranscriptRef.current.trim();
+    if (!finalTranscript) {
+      setSessionError("Sessiosta ei kertynyt litteroitua tekstiä.");
+      return;
+    }
+
+    setIsAnalyzingSession(true);
+    try {
+      console.log(
+        `[Kirjaajanne] Lähetetään koko sessiotranskripti (${finalTranscript.length} merkkiä) ` +
+          "/api/analyze-session-reitille Kanta-jäsennystä varten."
+      );
+
+      const response = await fetch("/api/analyze-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transcript: finalTranscript }),
+      });
+
+      if (!response.ok) {
+        const errorBody = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(
+          errorBody?.error ||
+            `Session Kanta-jäsennys epäonnistui (tila ${response.status}).`
+        );
+      }
+
+      const data = (await response.json()) as { text?: string };
+      const kantaText = data.text?.trim();
+
+      if (!kantaText) {
+        throw new Error("Kanta-jäsennys ei palauttanut tekstiä.");
+      }
+
+      // Asetetaan valmis Kanta-rakenne samaan `completion`-tilaan jota
+      // "Vapaa sanelu" -toiminto käyttää, jotta olemassa oleva esikatselu-
+      // ja "Kopioi ja Tyhjennä" -UI toimii sellaisenaan myös sessiolle.
+      // `isOpen` avataan, jotta tämä valmis tekstikenttä tulee heti näkyviin.
+      setCompletion(kantaText);
+      setIsOpen(true);
+      toast.success("Sessio päätetty — Kanta-kirjaus muodostettu.", {
+        description: "Tarkista jäsennelty kirjaus alta ennen kopiointia.",
+      });
+    } catch (analyzeError) {
+      const message =
+        analyzeError instanceof Error
+          ? analyzeError.message
+          : "Tuntematon virhe session analysoinnissa.";
+      console.error(
+        "[Kirjaajanne] Session Kanta-jäsennys epäonnistui:",
+        analyzeError
+      );
+      setSessionError(message);
+    } finally {
+      setIsAnalyzingSession(false);
+    }
+  };
 
   const handleMicClick = () => {
     setIsOpen((prev) => !prev);
@@ -550,6 +825,130 @@ export function DictationPanel() {
         >
           Tai kirjoita sanelu käsin
         </button>
+      )}
+
+      {/* ==================================================================
+          SESSIO-TILA (Ambient Clinical Intelligence) — Tehtävä 1.
+          Erillinen, koko istunnon (45–60 min) jatkuvaan taustanauhoitukseen
+          tarkoitettu toiminto, selkeästi erillään yllä olevasta lyhyestä
+          "Vapaa sanelu" -mikrofonipainikkeesta.
+          ================================================================== */}
+      <div className="mt-2 flex w-full max-w-2xl flex-col items-center gap-2 border-t border-border pt-4">
+        <Button
+          type="button"
+          variant={isSessionActive ? "destructive" : "outline"}
+          size="lg"
+          onClick={isSessionActive ? undefined : handleStartSession}
+          disabled={isSessionActive || isRecording || isTranscribing}
+          className="gap-2"
+        >
+          {isSessionActive ? (
+            <Radio className="size-4 animate-pulse" />
+          ) : (
+            <Radio className="size-4" />
+          )}
+          {isSessionActive ? "Sessio käynnissä" : "Aloita Sessio-nauhoitus"}
+        </Button>
+        <span className="text-center text-xs text-muted-foreground">
+          Koko vastaanoton (n. 45–60 min) jatkuva nauhoitus ja taustalitterointi.
+        </span>
+      </div>
+
+      {isSessionActive && (
+        <div className="flex w-full max-w-2xl items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+          <span className="relative flex size-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60" />
+            <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
+          </span>
+          Sessio käynnissä: Kuuntelee ja litteroi... ({formatSessionTime(sessionSeconds)})
+          {pendingSegmentCount > 0 && (
+            <span className="text-xs font-normal text-primary/70">
+              (litteroi {pendingSegmentCount} segmenttiä…)
+            </span>
+          )}
+        </div>
+      )}
+
+      {sessionError && (
+        <div className="flex w-full max-w-2xl items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+          <span>{sessionError}</span>
+        </div>
+      )}
+
+      {isSessionOpen && (
+        <Card className="mt-2 w-full max-w-2xl text-left">
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <ScrollText className="size-4 text-primary" />
+                Sessio-transkripti (raakanauhoitus)
+              </CardTitle>
+              <CardDescription>
+                Koko istunnon raaka, jatkuvasti kasvava litterointi. Paina
+                &quot;Päätä sessio ja luo kirjaus&quot;, kun vastaanotto on
+                ohi, niin tekoäly suodattaa small talkin pois ja jäsentää
+                jäljelle jäävät kliiniset löydökset Kanta-otsikoiden alle.
+              </CardDescription>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setIsSessionOpen(false)}
+              aria-label="Piilota sessio-paneeli"
+            >
+              <X className="size-4" />
+            </Button>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <div className="max-h-56 overflow-y-auto rounded-lg border border-border bg-muted/40 p-3">
+              {sessionTranscript ? (
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                  {sessionTranscript}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Litteroitu teksti ilmestyy tähän n. 30 sekunnin välein
+                  nauhoituksen aikana.
+                </p>
+              )}
+              <div ref={sessionLogEndRef} />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                onClick={handleFinishSession}
+                disabled={
+                  isAnalyzingSession ||
+                  (!isSessionActive && sessionTranscript.trim().length === 0)
+                }
+                className="flex-1 gap-1.5"
+              >
+                {isAnalyzingSession ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <FileText className="size-4" />
+                )}
+                {isAnalyzingSession
+                  ? "Jäsennetään Kanta-kirjaukseksi..."
+                  : "Päätä sessio ja luo kirjaus"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleClearSession}
+                disabled={isSessionActive || isAnalyzingSession}
+                aria-label="Tyhjennä sessio-transkripti"
+                title="Tyhjennä sessio-transkripti"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {isOpen && (
