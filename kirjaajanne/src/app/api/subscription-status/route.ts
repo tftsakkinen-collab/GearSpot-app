@@ -22,6 +22,13 @@ export async function GET(req: Request) {
     return Response.json({ isActive: true, status: "active", isFreeBeta: true });
   }
 
+  const { searchParams } = new URL(req.url);
+  const deviceId = searchParams.get("deviceId") || "";
+
+  if (!supabaseServerClient) {
+    return Response.json({ isActive: false, status: "none" });
+  }
+
   try {
     const { data, error } = await supabaseServerClient
       .from("profiles")
