@@ -14,6 +14,22 @@ Tämä on paikallinen (`kirjaajanne`-repo) kopio Kirjaajannetta koskevista pää
 - **Tikkettien muotoilu:** Generoi tiketin otsikkoon sovellusversion ja lyhyen otteen käyttäjän ongelmakuvauksesta. Tiketin leipätekstiin muotoillaan laitetiedot, aikaleima ja lokimerkinnät selkeinä Markdown-lohkoina.
 - **Vastaukset & Virheenkäsittely:** Palauttaa JSON-vastauksen (`ContentService.MimeType.JSON`) HTTP 200/400/500 -tiloilla ja virhelokittaa mahdolliset HTTP-pyyntövirheet.
 
+## 2026-08-24 — Session-based (Istuntopohjainen) saneluarkkitehtuuri, STT-palautesilmukka ja päivitetty System Prompt
+
+**Uudet ja muutetut tiedostot:**
+- `src/components/dictation-panel.tsx` (Istuntopohjainen käyttöliittymä, kertyvä sanelupuskuri, 🚩 STT-virheraportointimodaali)
+- `src/components/stt-error-modal.tsx` (Uusi komponentti: "Minkä sanan tekoäly ymmärsi väärin?" STT-sanakirjan pohjustukseen)
+- `src/app/api/chat/route.ts` & `src/app/api/analyze-session/route.ts` (Päivitetty ammattimainen, empaattinen ja potilaan preferenssit säilyttävä System Prompt)
+
+**Yhteenveto:**
+- **Session State:** Siirrytty yksittäisistä "Single-shot" -saneluista jatkuvaan "Session-based" -malliin. Terapeutti voi sanella useita pätkiä (esim. tutkimus, hoito, tulokset) yhden vastaanoton aikana. Pätkät kertyvät yhtenäiseen muokattavaan puskuriin ilman yksittäisten osien poisto-/kopiointipainikkeita.
+- **Ensisijainen toiminto:** Lisätty "Päätä vastaanotto ja generoi kirjaus" -painike, joka lähettää kertyneen vastaanottopuskurin kielimallille Kanta-jäsennystä varten.
+- **STT-virheraportointi (🚩):** Tekstiosioiden yhteyteen lisätty 🚩-ikoni ja korjausmodaali ('Väärä sana' -> 'Oikea sana'), joka lähettää virhetiedot webhookiin (`NEXT_PUBLIC_BUG_WEBHOOK_URL`) käyttäjäkohtaisen STT-sanakirjan kehitystä varten.
+- **System Prompt:** Päivitetty LLM-ohjeistus:
+  1. Fysioterapian kokenut ammattilainen & kirjuri -rooli.
+  2. Ammattimainen, Kanta-yhteensopiva mutta persoonallinen ja empaattinen sävy.
+  3. Kriittinen sääntö potilaan henkilökohtaisten preferenssien (esim. musiikki, mieltymykset) säilyttämisestä ja muotoilusta osaksi hoito-ohjeita tai huomioita.
+
 ---
 
 ## 2026-08-23 — Stripe-maksuintegraatio (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk)

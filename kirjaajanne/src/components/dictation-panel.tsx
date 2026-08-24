@@ -16,6 +16,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import {
   AlertCircle,
   FileText,
+  Flag,
   Loader2,
   Lock,
   Mic,
@@ -43,6 +44,7 @@ import {
   TemplateAdminDialog,
   type DictationTemplate,
 } from "@/components/template-admin-dialog";
+import { STTErrorModal } from "@/components/stt-error-modal";
 
 function formatRecordingTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -185,6 +187,13 @@ export function DictationPanel() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [sttModalOpen, setSttModalOpen] = useState(false);
+  const [sttModalContext, setSttModalContext] = useState("");
+
+  const handleReportSTT = (contextText?: string) => {
+    setSttModalContext(contextText || localText || completion);
+    setSttModalOpen(true);
+  };
 
   // Dynaamiset sanelupohjat (Tehtävä 1, v2.2): haetaan Supabasesta
   // `/api/templates`-reitin kautta. Alkuarvo on paikallinen varajoukko,
@@ -702,11 +711,13 @@ export function DictationPanel() {
         }
 
         console.log(
-          "[Kirjaajanne] Whisper-litterointi onnistui, syötetään teksti Kanta-kirjaus-funktioon:",
+          "[Kirjaajanne] Whisper-litterointi onnistui, lisätään teksti vastaanoton sanelupuskuriin:",
           transcribedText
         );
-        setLocalText(transcribedText);
-        await complete(transcribedText);
+        setLocalText((prev) => (prev.trim() ? `${prev.trim()}\n\n${transcribedText}` : transcribedText));
+        toast.success("Sanelun osa lisätty vastaanottoon", {
+          description: "Voit sanella lisää osioita tai painaa 'Päätä vastaanotto ja generoi kirjaus'.",
+        });
       } catch (transcribeError) {
         const message =
           transcribeError instanceof Error
@@ -1137,14 +1148,30 @@ export function DictationPanel() {
                   <Button
                     type="submit"
                     disabled={isLoading || isTranscribing || localText.trim().length === 0}
-                    className="shrink-0 gap-1.5"
+                    className="shrink-0 gap-1.5 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500"
                   >
                     {isLoading ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
                       <Send className="size-4" />
                     )}
-                    {isLoading ? "Kirjataan..." : "Muodosta Kanta-kirjaus"}
+                    {isLoading ? "Generoidaan..." : "Päätä vastaanotto ja generoi kirjaus"}
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-xs text-muted-foreground">
+                    Vastaanoton sanelut kertyvät puskuriin automaattisesti.
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleReportSTT(localText)}
+                    title="Raportoi virheellinen puheentunnistussana"
+                    className="gap-1 text-xs text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 h-7"
+                  >
+                    <Flag className="size-3.5" />
+                    <span>Raportoi STT-virhe 🚩</span>
                   </Button>
                 </div>
                 {/* Automaattitallennuksen tila-indikaattori (Tehtävä 3, v2.2) */}
@@ -1167,9 +1194,22 @@ export function DictationPanel() {
 
             {completion && (
               <div className="rounded-lg border border-border bg-muted/40 p-4">
-                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <FileText className="size-4 text-primary" />
-                  Kanta-kirjaus
+                <div className="mb-2 flex items-center justify-between text-sm font-semibold text-foreground">
+                  <div className="flex items-center gap-2">
+                    <FileText className="size-4 text-primary" />
+                    <span>Kanta-kirjaus</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleReportSTT(completion)}
+                    title="Raportoi STT-virhe tässä kirjauksessa"
+                    className="gap-1 text-xs text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 h-7"
+                  >
+                    <Flag className="size-3.5" />
+                    <span>Raportoi virhe 🚩</span>
+                  </Button>
                 </div>
                 <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground">
                   {completion}
@@ -1197,6 +1237,12 @@ export function DictationPanel() {
         onTemplateCreated={(newTemplate) =>
           setTemplates((prev) => [...prev, newTemplate])
         }
+      />
+
+      <STTErrorModal
+        isOpen={sttModalOpen}
+        onClose={() => setSttModalOpen(false)}
+        initialText={sttModalContext}
       />
     </div>
   );
