@@ -15,6 +15,7 @@ import { useSessionRecorder } from "@/hooks/use-session-recorder";
 import { useSubscription } from "@/hooks/use-subscription";
 import {
   AlertCircle,
+  BookOpen,
   FileText,
   Flag,
   Loader2,
@@ -45,6 +46,8 @@ import {
   type DictationTemplate,
 } from "@/components/template-admin-dialog";
 import { STTErrorModal } from "@/components/stt-error-modal";
+import { VocabularyManagerDialog } from "@/components/vocabulary-manager-dialog";
+import { getWhisperPromptTerms, getLLMVocabularyMapping } from "@/lib/custom-vocabulary";
 
 function formatRecordingTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -203,6 +206,7 @@ export function DictationPanel() {
     CLIENT_FALLBACK_TEMPLATES
   );
   const [isTemplateAdminOpen, setIsTemplateAdminOpen] = useState(false);
+  const [isVocabularyOpen, setIsVocabularyOpen] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -480,6 +484,10 @@ export function DictationPanel() {
 
           const formData = new FormData();
           formData.append("audio", blob, "sessio-segmentti.webm");
+          const userTerms = getWhisperPromptTerms();
+          if (userTerms) {
+            formData.append("userTerms", userTerms);
+          }
 
           const response = await fetch("/api/transcribe", {
             method: "POST",
@@ -597,10 +605,11 @@ export function DictationPanel() {
           "/api/analyze-session-reitille Kanta-jäsennystä varten."
       );
 
+      const userVocabulary = getLLMVocabularyMapping();
       const response = await fetch("/api/analyze-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ transcript: finalTranscript }),
+        body: JSON.stringify({ transcript: finalTranscript, userVocabulary }),
       });
 
       if (!response.ok) {
@@ -678,6 +687,10 @@ export function DictationPanel() {
       try {
         const formData = new FormData();
         formData.append("audio", blob, "sanelu.webm");
+        const userTerms = getWhisperPromptTerms();
+        if (userTerms) {
+          formData.append("userTerms", userTerms);
+        }
 
         const response = await fetch("/api/transcribe", {
           method: "POST",
@@ -749,7 +762,8 @@ export function DictationPanel() {
     }
 
     console.log("[Kirjaajanne] Lähetetään sanelu Kanta-kirjausta varten:", localText);
-    void complete(localText);
+    const userVocabulary = getLLMVocabularyMapping();
+    void complete(localText, { body: { userVocabulary } });
   };
 
   const onFormSubmit = (event: FormEvent) => {
@@ -1097,6 +1111,18 @@ export function DictationPanel() {
               <Button
                 type="button"
                 variant="ghost"
+                size="sm"
+                onClick={() => setIsVocabularyOpen(true)}
+                aria-label="Avaa oma sanakirja"
+                title="Avaa oma STT & LLM -sanakirja"
+                className="gap-1 text-xs text-primary hover:bg-primary/10"
+              >
+                <BookOpen className="size-4" />
+                <span className="hidden sm:inline">Oma sanakirja</span>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
                 size="icon-sm"
                 onClick={() => setIsTemplateAdminOpen(true)}
                 aria-label="Hallitse sanelupohjia"
@@ -1243,6 +1269,11 @@ export function DictationPanel() {
         isOpen={sttModalOpen}
         onClose={() => setSttModalOpen(false)}
         initialText={sttModalContext}
+      />
+
+      <VocabularyManagerDialog
+        open={isVocabularyOpen}
+        onOpenChange={setIsVocabularyOpen}
       />
     </div>
   );

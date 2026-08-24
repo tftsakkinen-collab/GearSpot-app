@@ -47,9 +47,13 @@ EHDOTON ANONYMISOINTISÄÄNTÖ:
 Tunnistettavat henkilötiedot (nimet, henkilötunnukset, osoitteet, tiettyjen työnantajien nimet) korvataan yleistermeillä (esim. "asiakas", "työpaikka", "paikkakunta"). Inhimilliset preferenssit ja elämäntavat säilytetään anonyymissä muodossa.`;
 
 export async function POST(req: Request) {
-  const { transcript }: { transcript?: string } = await req
-    .json()
-    .catch(() => ({}));
+  const {
+    transcript,
+    userVocabulary,
+  }: {
+    transcript?: string;
+    userVocabulary?: { wrong?: string; correct?: string }[];
+  } = await req.json().catch(() => ({}));
 
   if (
     !transcript ||
@@ -62,6 +66,15 @@ export async function POST(req: Request) {
     );
   }
 
+  let activeSystemPrompt = SESSION_ANALYSIS_SYSTEM_PROMPT;
+
+  if (Array.isArray(userVocabulary) && userVocabulary.length > 0) {
+    const vocabJson = JSON.stringify(userVocabulary);
+    activeSystemPrompt +=
+      `\n\nLISÄTIETO: KÄYTTÄJÄN OMA STT-SANAKIRJA:\n` +
+      `Tarkista ja korjaa tekstistä mahdolliset puheentunnistusvirheet käyttäen seuraavaa käyttäjän omaa sanakirjaa (Väärin kuultu sana -> Oikea ammattitermi):\n${vocabJson}`;
+  }
+
   console.log(
     `[Kirjaajanne] /api/analyze-session: vastaanotettu ${transcript.length} merkkiä ` +
       "raakatranskriptiä, lähetetään Geminille Kanta-jäsennystä varten..."
@@ -70,7 +83,7 @@ export async function POST(req: Request) {
   try {
     const { text: kantaContent } = await generateText({
       model: google(MODEL_ID),
-      system: SESSION_ANALYSIS_SYSTEM_PROMPT,
+      system: activeSystemPrompt,
       prompt: transcript,
     });
 

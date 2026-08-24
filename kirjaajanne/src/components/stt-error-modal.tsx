@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Flag, Send, X, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { getRecentActionLogs, logAction } from "@/lib/action-logger";
+import { addVocabularyEntry } from "@/lib/custom-vocabulary";
 
 export interface STTErrorModalProps {
   isOpen: boolean;
@@ -21,6 +22,9 @@ export function STTErrorModal({ isOpen, onClose, initialText = "" }: STTErrorMod
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!wrongWord.trim() || !correctWord.trim()) return;
+
+    // Tallenna välittömästi paikalliseen sanakirjaan (Double-Barrel STT Architecture)
+    addVocabularyEntry(correctWord.trim(), wrongWord.trim());
 
     const webhookUrl =
       process.env.NEXT_PUBLIC_BUG_WEBHOOK_URL ||

@@ -30,6 +30,21 @@ Tämä on paikallinen (`kirjaajanne`-repo) kopio Kirjaajannetta koskevista pää
   2. Ammattimainen, Kanta-yhteensopiva mutta persoonallinen ja empaattinen sävy.
   3. Kriittinen sääntö potilaan henkilökohtaisten preferenssien (esim. musiikki, mieltymykset) säilyttämisestä ja muotoilusta osaksi hoito-ohjeita tai huomioita.
 
+## 2026-08-24 — Kaksivaiheinen itseoppiva STT-korjausmekanismi (The Double-Barrel STT Architecture)
+
+**Uudet ja muutetut tiedostot:**
+- `src/lib/custom-vocabulary.ts` (Sanakirjan tilanhallinta ja localStorage-pysyvyys: `CustomVocabulary`)
+- `src/components/vocabulary-manager-dialog.tsx` (Uusi "Oma Sanakirja" hallintanäkymä asetuksiin)
+- `src/components/stt-error-modal.tsx` (Automaattitallennus `addVocabularyEntry` -metodilla)
+- `src/app/api/transcribe/route.ts` (Whisper Prompt Injection: syöttää 50 viimeisintä `correctWord`-termiä Whisperin `prompt`-parametriin)
+- `src/app/api/chat/route.ts` & `src/app/api/analyze-session/route.ts` (LLM Post-Processing: syöttää sanakirjan dynaamisesti Gemini-järjestelmäpromptiin automaattikorjausta varten)
+- `src/components/dictation-panel.tsx` (Kytketty Whisper & LLM vocabulary injection sekä 📖 "Oma sanakirja" -nappi)
+
+**Yhteenveto:**
+- **Aktiivinen korjaus (Whisper Injection):** Syöttää käyttäjän tallentamat anatomian/manuaaliterapian termit Whisper STT -pyynnön `prompt`-parametriin biasoidakseen mallin kuuloalueen oikeisiin ammattitermeihin.
+- **Passiivinen turvaverkko (LLM Post-Processing):** Syöttää sanaparit JSON-muodossa Gemini-kielimallille, joka korjaa tekstistä mahdolliset puheentunnistusvirheet Kanta-kirjauksen generoinnin aikana.
+- **Käyttäjän sanakirja & UI:** Käyttäjä voi hallinnoida sanaparia 📖 "Oma sanakirja" -dialogista ja kasvattaa sanakirjaa automaattisesti 🚩 "Raportoi STT-virhe" -modaalin kautta.
+
 ---
 
 ## 2026-08-23 — Stripe-maksuintegraatio (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk)

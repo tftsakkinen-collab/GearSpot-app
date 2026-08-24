@@ -59,10 +59,25 @@ KÄSIKIRJOITUKSEN RAKENNE:
 Pidä teksti lyhyenä, ytimekkäänä ja suoraan kameralle puhuttavaksi sopivana. Ei turhaa jargonia.`;
 
 export async function POST(req: Request) {
-  const { prompt }: { prompt?: string } = await req.json();
+  const {
+    prompt,
+    userVocabulary,
+  }: {
+    prompt?: string;
+    userVocabulary?: { wrong?: string; correct?: string }[];
+  } = await req.json().catch(() => ({}));
 
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     return new Response("Sanelutekstiä ei vastaanotettu.", { status: 400 });
+  }
+
+  let activeSystemPrompt = KANTA_SYSTEM_PROMPT;
+
+  if (Array.isArray(userVocabulary) && userVocabulary.length > 0) {
+    const vocabJson = JSON.stringify(userVocabulary);
+    activeSystemPrompt +=
+      `\n\nLISÄTIETO: KÄYTTÄJÄN OMA STT-SANAKIRJA:\n` +
+      `Tarkista ja korjaa tekstistä mahdolliset puheentunnistusvirheet käyttäen seuraavaa käyttäjän omaa sanakirjaa (Väärin kuultu sana -> Oikea ammattitermi):\n${vocabJson}`;
   }
 
   // --- Vaihe 2: YouTube-case taustalla, ei odoteta valmistumista tässä. ---
@@ -87,7 +102,7 @@ export async function POST(req: Request) {
   // --- Vaihe 1: Kanta-kirjaus striimataan välittömästi clientille. ---
   const result = streamText({
     model: google(MODEL_ID),
-    system: KANTA_SYSTEM_PROMPT,
+    system: activeSystemPrompt,
     prompt,
     onEnd: async ({ text: kantaContent }) => {
       after(async () => {

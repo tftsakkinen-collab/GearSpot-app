@@ -80,10 +80,12 @@ function serializeError(error: unknown) {
 
 export async function POST(req: Request) {
   let audioFile: unknown;
+  let userTerms = "";
 
   try {
     const formData = await req.formData();
     audioFile = formData.get("audio");
+    userTerms = (formData.get("userTerms") as string | null) || "";
   } catch (error) {
     console.error(
       "[Kirjaajanne] /api/transcribe: lomakedatan (FormData) purku epäonnistui:",
@@ -111,9 +113,13 @@ export async function POST(req: Request) {
 
   try {
     const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
+    const whisperPrompt = userTerms.trim()
+      ? `${userTerms.trim()}, ${TRANSCRIPTION_VOCABULARY_PROMPT}`
+      : TRANSCRIPTION_VOCABULARY_PROMPT;
 
     console.log(
       `[Kirjaajanne] /api/transcribe: vastaanotettu ${audioBuffer.byteLength} tavua ääntä, ` +
+        `Whisper Prompt -inject: "${whisperPrompt.slice(0, 100)}...", ` +
         `lähetetään Whisperille (${TRANSCRIPTION_MODEL_ID})...`
     );
 
@@ -123,10 +129,8 @@ export async function POST(req: Request) {
       providerOptions: {
         openai: {
           // Ohjaa Whisperiä tunnistamaan suomenkielinen fysioterapia- ja
-          // anatomiasanasto oikein (Tehtävä 4). `language` lukitaan
-          // suomeksi, jotta malli ei koskaan yritä tunnistaa kieltä
-          // väärin lyhyistä tai hiljaisista nauhoituksen alkupätkistä.
-          prompt: TRANSCRIPTION_VOCABULARY_PROMPT,
+          // anatomiasanasto sekä käyttäjän omat termit oikein (Double-Barrel STT Architecture).
+          prompt: whisperPrompt,
           language: "fi",
         },
       },
