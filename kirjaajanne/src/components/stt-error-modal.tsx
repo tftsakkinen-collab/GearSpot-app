@@ -132,7 +132,7 @@ export function STTErrorModal({ isOpen, onClose, initialText = "" }: STTErrorMod
             </div>
             <h4 className="text-base font-bold text-foreground">Korjaus tallennettu!</h4>
             <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-              Tämä oli <span className="font-semibold text-primary">{reportedCount}.</span> opettamasi sana. Kiitos, että teet Kirjaajanteesta älykkäämmän assistentin.
+              Kiitos! Opetat tekoälyämme ymmärtämään meidän ammattisanastoamme entistä paremmin. (Tämä oli <span className="font-semibold text-primary">{reportedCount}.</span> opettamasi sana).
             </p>
             <button
               type="button"

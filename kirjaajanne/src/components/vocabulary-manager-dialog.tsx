@@ -92,7 +92,7 @@ export function VocabularyManagerDialog({ open, onOpenChange }: VocabularyManage
           <Sparkles className="size-5 shrink-0 mt-0.5 text-primary animate-pulse" />
           <div className="space-y-1.5 w-full">
             <div className="font-medium text-foreground text-xs leading-relaxed">
-              Olet opettanut tekoälylle <span className="text-primary font-bold">{entries.length}</span> termiä. Henkilökohtainen sanastosi tekee sanelusta jatkuvasti tarkemman.
+              Olet opettanut tekoälylle <span className="text-primary font-bold">{entries.length}</span> termiä. Omat termisi tekevät sanelusta jatkuvasti tarkemman meille kaikille.
             </div>
             <div className="w-full bg-primary/20 rounded-full h-2 overflow-hidden">
               <div

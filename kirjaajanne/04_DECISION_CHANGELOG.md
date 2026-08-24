@@ -72,6 +72,19 @@ Tämä on paikallinen (`kirjaajanne`-repo) kopio Kirjaajannetta koskevista pää
 - **Serverless API:** `/api/stats` ja `/api/stats/increment` tarjoavat turvallisen palvelinrajapinnan laskureiden hallintaan.
 - **Frontend Skeleton Loader:** Etusivun banneri näyttää sulavan latausanimaation hakuvaiheessa ennen reaaliaikaisten lukujen esittämistä.
 
+## 2026-08-25 — Manuaaliterapia-brändäys, "Me"-hengen Tone of Voice & Sisältösivut
+
+**Uudet ja muutetut tiedostot:**
+- `src/app/page.tsx` (Pääotsikko päivitetty "Manuaaliterapian sanelin-assistentti", täydennetty Ominaisuudet- ja Tietoturva-osiot kortteineen ja me-muotoisin tekstein)
+- `src/app/layout.tsx` (Päivitetty sivuston metaotsikko ja kuvaus manuaaliterapian sanelin-assistentiksi)
+- `src/app/api/analyze-session/route.ts` & `src/app/api/chat/route.ts` (Päivitetty System Promptit muotoon *"Olet kokenut manuaaliterapian ammattilainen ja älykäs sanelin-assistentti"* sekä katettu koko manuaaliterapian kliininen kenttä)
+- `src/components/stt-error-modal.tsx` & `src/components/vocabulary-manager-dialog.tsx` (Viilattu pelillistämistekstit me-henkisiksi)
+
+**Yhteenveto:**
+- **Brändi & Sävy (Tone of Voice):** Siirretty sovelluksen viestintä "fysioterapia"-keskeisyydestä laajempaan manuaaliterapiaan ja yhteisölliseen "me"-muotoon (*"Suunniteltu meille manuaaliterapian ammattilaisille..."*).
+- **Täydennetty Ominaisuudet-osio:** Istuntopohjainen työnkulku, Meidän oma ammattisanastomme (Double-Barrel STT), Aikaa säästävä Kanta-rakenne.
+- **Täydennetty Tietoturva-osio:** Potilastietojen ehdoton suoja, Anonyymi yhteisödata, GDPR-yhteensopivuus.
+
 ---
 
 ## 2026-08-23 — Stripe-maksuintegraatio (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk)

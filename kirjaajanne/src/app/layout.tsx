@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kirjaajanne | Tekoälynatiivi kliininen kirjaaminen",
+  title: "Kirjaajanne | Manuaaliterapian sanelin-assistentti",
   description:
-    "Kirjaajanne on oppiva, tekoälynatiivi järjestelmä kliiniseen kirjaamiseen. Sanele, ja anna tekoälyn kirjoittaa rakenteinen potilaskertomus puolestasi.",
+    "Kirjaajanne on oppiva, tekoälypohjainen sanelin-assistentti meille manuaaliterapian ammattilaisille. Sanele omassa tahdissasi ja anna tekoälyn muodostaa rakenteinen Kanta-kirjaus puolestasi.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
