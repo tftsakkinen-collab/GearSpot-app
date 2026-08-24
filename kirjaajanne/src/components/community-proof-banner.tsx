@@ -1,19 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Users, Sparkles, Award, Clock } from "lucide-react";
 
 export interface CommunityProofBannerProps {
-  communityWordsCount?: number;
-  timeSavedMinutes?: number;
+  initialCommunityWords?: number;
+  initialTimeSavedMinutes?: number;
 }
 
 export function CommunityProofBanner({
-  communityWordsCount = 1450,
-  timeSavedMinutes = 12350,
+  initialCommunityWords = 1450,
+  initialTimeSavedMinutes = 12350,
 }: CommunityProofBannerProps) {
-  const formattedWords = communityWordsCount.toLocaleString("fi-FI");
-  const formattedMinutes = timeSavedMinutes.toLocaleString("fi-FI");
+  const [stats, setStats] = useState({
+    total_words_taught: initialCommunityWords,
+    total_time_saved_minutes: initialTimeSavedMinutes,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/stats")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.total_words_taught && data.total_time_saved_minutes) {
+          setStats({
+            total_words_taught: Number(data.total_words_taught),
+            total_time_saved_minutes: Number(data.total_time_saved_minutes),
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn("[Kirjaajanne] Stats fetch error:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const formattedWords = stats.total_words_taught.toLocaleString("fi-FI");
+  const formattedMinutes = stats.total_time_saved_minutes.toLocaleString("fi-FI");
 
   return (
     <div className="w-full max-w-4xl rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-background to-primary/5 p-6 shadow-sm">
@@ -31,7 +62,12 @@ export function CommunityProofBanner({
             </div>
             <h3 className="text-base font-semibold tracking-tight text-foreground leading-snug">
               Manuaaliterapian ammattilaiset ovat yhdessä opettaneet tekoälylle jo{" "}
-              <span className="text-primary font-bold">{formattedWords}</span> alan erikoistermiä.
+              {isLoading ? (
+                <span className="inline-block h-5 w-16 align-middle animate-pulse rounded bg-primary/20" />
+              ) : (
+                <span className="text-primary font-bold">{formattedWords}</span>
+              )}{" "}
+              alan erikoistermiä.
             </h3>
             <p className="text-xs text-muted-foreground">
               Rakennamme maailman tarkinta manuaaliterapian sanelin-assistenttia.
@@ -44,7 +80,11 @@ export function CommunityProofBanner({
           <div className="text-center px-2">
             <div className="flex items-center justify-center gap-1 text-lg font-bold text-foreground">
               <Award className="size-4 text-primary" />
-              <span>{formattedWords}</span>
+              {isLoading ? (
+                <span className="inline-block h-6 w-14 animate-pulse rounded bg-muted" />
+              ) : (
+                <span>{formattedWords}</span>
+              )}
             </div>
             <span className="text-[11px] text-muted-foreground font-medium">Opettua termiä</span>
           </div>
@@ -54,7 +94,11 @@ export function CommunityProofBanner({
           <div className="text-center px-2">
             <div className="flex items-center justify-center gap-1 text-lg font-bold text-foreground">
               <Clock className="size-4 text-emerald-600 dark:text-emerald-400" />
-              <span>{formattedMinutes} min</span>
+              {isLoading ? (
+                <span className="inline-block h-6 w-16 animate-pulse rounded bg-muted" />
+              ) : (
+                <span>{formattedMinutes} min</span>
+              )}
             </div>
             <span className="text-[11px] text-muted-foreground font-medium">Aikaa säästetty</span>
           </div>

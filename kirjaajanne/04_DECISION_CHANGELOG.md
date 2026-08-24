@@ -59,6 +59,19 @@ Tämä on paikallinen (`kirjaajanne`-repo) kopio Kirjaajannetta koskevista pää
 - **Pelillistetty STT Error Modal:** Päivitetty vahvistusteksti *"Korjaus tallennettu! Tämä oli [X]. opettamasi sana. Kiitos, että teet Kirjaajanteesta älykkäämmän assistentin."*
 - **Community Proof:** Etusivulla reaaliaikainen/mock-laskuri: *"Manuaaliterapian ammattilaiset ovat yhdessä opettaneet tekoälylle jo [1 450] alan erikoistermiä. Rakennamme maailman tarkinta manuaaliterapian sanelin-assistenttia."*
 
+## 2026-08-24 — Reaaliaikainen Supabase Yhteisölaskuri (Community Stats Database Architecture)
+
+**Uudet ja muutetut tiedostot:**
+- `src/lib/supabaseClient.ts` (Julkinen, client-safe Supabase-asiakas `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` -muuttujilla)
+- `src/app/api/stats/route.ts` & `src/app/api/stats/increment/route.ts` (API-reitit palvelinpuolen laskureiden hakemiseen ja inkrementointiin)
+- `src/components/community-proof-banner.tsx` (Reaaliaikainen tietokantahaku `GET /api/stats` + Skeleton loader -latausanimaatio)
+- `src/lib/custom-vocabulary.ts` (Inkrementoi automaattisesti yhteisölaskuria `POST /api/stats/increment` kun uusi sana opetetaan)
+
+**Yhteenveto:**
+- **Tietokantaschemat:** Luotu `community_stats`-taulumäärittely (`total_words_taught`, `total_time_saved_minutes`).
+- **Serverless API:** `/api/stats` ja `/api/stats/increment` tarjoavat turvallisen palvelinrajapinnan laskureiden hallintaan.
+- **Frontend Skeleton Loader:** Etusivun banneri näyttää sulavan latausanimaation hakuvaiheessa ennen reaaliaikaisten lukujen esittämistä.
+
 ---
 
 ## 2026-08-23 — Stripe-maksuintegraatio (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk)

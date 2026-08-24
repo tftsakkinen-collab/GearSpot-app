@@ -55,6 +55,16 @@ export function addVocabularyEntry(correctWord: string, wrongWord: string = ""):
 
   const updated = [newEntry, ...filtered];
   saveCustomVocabulary(updated);
+
+  // Palvelinpuolen globaalin yhteisölaskurin synkronointi (fire & forget)
+  fetch("/api/stats/increment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ wordsDelta: 1 }),
+  }).catch((err) => {
+    console.warn("[Kirjaajanne] Stats increment call failed:", err);
+  });
+
   return updated;
 }
 
