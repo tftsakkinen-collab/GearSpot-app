@@ -824,7 +824,10 @@ export function DictationPanel() {
   // kokonaan ja tilalle näytetään "Aloita 30 pv ilmainen kokeilu" -painike,
   // joka ohjaa Stripe Checkoutiin.
   // ==========================================================================
-  if (isSubscriptionLoading) {
+  // Asetus vapaalle testikäytölle (maksumuuri ohitettu)
+  const IS_FREE_TEST_PERIOD = true;
+
+  if (!IS_FREE_TEST_PERIOD && isSubscriptionLoading) {
     return (
       <div className="flex w-full flex-col items-center gap-4">
         <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 sm:h-32 sm:w-32">
@@ -837,7 +840,7 @@ export function DictationPanel() {
     );
   }
 
-  if (!hasActiveSubscription) {
+  if (!IS_FREE_TEST_PERIOD && !hasActiveSubscription) {
     return (
       <Card className="w-full max-w-md text-center">
         <CardHeader className="items-center">

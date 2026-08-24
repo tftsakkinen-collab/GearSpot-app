@@ -36,8 +36,8 @@ export interface SubscriptionState {
 }
 
 export function useSubscription(): SubscriptionState {
-  const [status, setStatus] = useState<SubscriptionStatus>("loading");
-  const [isActive, setIsActive] = useState(false);
+  const [status, setStatus] = useState<SubscriptionStatus>("active");
+  const [isActive, setIsActive] = useState(true);
   const [isStartingCheckout, setIsStartingCheckout] = useState(false);
 
   // Huom: haku on tarkoituksella toteutettu Promise-ketjuna (`.then`/`.catch`)
