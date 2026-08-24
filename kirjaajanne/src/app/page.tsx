@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { DictationPanel } from "@/components/dictation-panel-loader";
+import { BugReportModal } from "@/components/bug-report-modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -162,7 +163,9 @@ export default function Home() {
           <span>Tekoälynatiivi kliininen kirjaaminen</span>
         </div>
       </footer>
+
+      {/* Floating Bug Report Modal & Trigger */}
+      <BugReportModal />
     </div>
   );
 }
-
