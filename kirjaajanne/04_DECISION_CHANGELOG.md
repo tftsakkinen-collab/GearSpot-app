@@ -45,6 +45,20 @@ Tämä on paikallinen (`kirjaajanne`-repo) kopio Kirjaajannetta koskevista pää
 - **Passiivinen turvaverkko (LLM Post-Processing):** Syöttää sanaparit JSON-muodossa Gemini-kielimallille, joka korjaa tekstistä mahdolliset puheentunnistusvirheet Kanta-kirjauksen generoinnin aikana.
 - **Käyttäjän sanakirja & UI:** Käyttäjä voi hallinnoida sanaparia 📖 "Oma sanakirja" -dialogista ja kasvattaa sanakirjaa automaattisesti 🚩 "Raportoi STT-virhe" -modaalin kautta.
 
+## 2026-08-24 — Pelillistäminen & Yhteisövaikutus (Retention & Gamification for Manual Therapy)
+
+**Uudet ja muutetut tiedostot:**
+- `src/components/community-proof-banner.tsx` (Uusi yhteisölaskurikomponentti etusivulle ja dashboardille)
+- `src/components/vocabulary-manager-dialog.tsx` (Gamified mittaristo, edistymispalkki, tasot ja virstanpylväiden confetti-animaatiot)
+- `src/components/stt-error-modal.tsx` (Päivitetty palauteputken pelillistetty kiitosteksti + milestone-confetti)
+- `src/app/page.tsx` (Kytketty `CommunityProofBanner` etusivun päänäkymään)
+
+**Yhteenveto:**
+- **Pelillistetty koulutusmittaristo:** Näyttää tarkan kopion *"Olet opettanut tekoälylle [X] termiä. Henkilökohtainen sanastosi tekee sanelusta jatkuvasti tarkemman."* mukana edistymispalkki sekä tasoluokitus (Aloittelija 🌱, Edistynyt 🌟, Mestari 🏆).
+- **Virstanpylväät & Confetti:** Automaattiset juhlaanimaatiot 1., 10. ja 50. sanan kohdalla (`canvas-confetti`).
+- **Pelillistetty STT Error Modal:** Päivitetty vahvistusteksti *"Korjaus tallennettu! Tämä oli [X]. opettamasi sana. Kiitos, että teet Kirjaajanteesta älykkäämmän assistentin."*
+- **Community Proof:** Etusivulla reaaliaikainen/mock-laskuri: *"Manuaaliterapian ammattilaiset ovat yhdessä opettaneet tekoälylle jo [1 450] alan erikoistermiä. Rakennamme maailman tarkinta manuaaliterapian sanelin-assistenttia."*
+
 ---
 
 ## 2026-08-23 — Stripe-maksuintegraatio (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk)

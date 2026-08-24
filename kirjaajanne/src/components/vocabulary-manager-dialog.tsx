@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BookOpen, Plus, Trash2, X, Sparkles, AlertCircle } from "lucide-react";
+import { BookOpen, Plus, Trash2, X, Sparkles, AlertCircle, Award, CheckCircle2 } from "lucide-react";
+import confetti from "canvas-confetti";
 import {
   getCustomVocabulary,
   addVocabularyEntry,
@@ -36,6 +37,14 @@ export function VocabularyManagerDialog({ open, onOpenChange }: VocabularyManage
     setEntries(updated);
     setNewCorrect("");
     setNewWrong("");
+
+    if ([1, 10, 50].includes(updated.length) || updated.length % 5 === 0) {
+      try {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      } catch (err) {
+        console.log("Confetti trigger:", err);
+      }
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -79,11 +88,23 @@ export function VocabularyManagerDialog({ open, onOpenChange }: VocabularyManage
           </div>
         </div>
 
-        <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-primary flex items-start gap-2">
-          <Sparkles className="size-4 shrink-0 mt-0.5" />
-          <span>
-            Tähän sanakirjaan tallennetut termit syötetään automaattisesti puheentunnistukselle (Whisper STT Injection) sekä Kanta-kirjauksen tekoälykorjaukseen.
-          </span>
+        <div className="mb-4 rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 p-3.5 text-xs text-primary flex items-start gap-3 shadow-xs">
+          <Sparkles className="size-5 shrink-0 mt-0.5 text-primary animate-pulse" />
+          <div className="space-y-1.5 w-full">
+            <div className="font-medium text-foreground text-xs leading-relaxed">
+              Olet opettanut tekoälylle <span className="text-primary font-bold">{entries.length}</span> termiä. Henkilökohtainen sanastosi tekee sanelusta jatkuvasti tarkemman.
+            </div>
+            <div className="w-full bg-primary/20 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, Math.max(4, (entries.length / 50) * 100))}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-0.5">
+              <span>Taso: {entries.length >= 50 ? "Mestari 🏆" : entries.length >= 10 ? "Edistynyt 🌟" : "Aloittelija 🌱"}</span>
+              <span>Seuraava virstanpylväs: {entries.length >= 50 ? "50/50 saavutettu!" : entries.length >= 10 ? `${entries.length}/50 termiä` : `${entries.length}/10 termiä`}</span>
+            </div>
+          </div>
         </div>
 
         {/* Lisäyslomake */}

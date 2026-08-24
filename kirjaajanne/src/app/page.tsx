@@ -3,11 +3,11 @@ import {
   Sparkles,
   Stethoscope,
   ClipboardList,
-  FileText,
 } from "lucide-react";
 
 import { DictationPanel } from "@/components/dictation-panel-loader";
 import { BugReportModal } from "@/components/bug-report-modal";
+import { CommunityProofBanner } from "@/components/community-proof-banner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -69,7 +69,7 @@ export default function Home() {
       </header>
 
       <main className="flex flex-1 flex-col items-center">
-        <section className="flex w-full max-w-3xl flex-col items-center px-6 pt-20 pb-16 text-center sm:pt-28">
+        <section className="flex w-full max-w-4xl flex-col items-center px-6 pt-16 pb-16 text-center sm:pt-24">
           <Badge variant="secondary" className="mb-6 gap-1.5 py-1.5 bg-green-500/15 text-green-700 dark:text-green-300 border border-green-500/30 font-semibold">
             <Sparkles className="size-3.5" />
             🎁 Vapaa testikäyttö aktiivinen – Maksutietoja EI tarvita!
@@ -86,8 +86,9 @@ export default function Home() {
             aikaa potilaalle.
           </p>
 
-          <div className="mt-12 flex w-full flex-col items-center gap-4">
+          <div className="mt-10 flex w-full flex-col items-center gap-6">
             <DictationPanel />
+            <CommunityProofBanner />
           </div>
         </section>
 
@@ -121,39 +122,6 @@ export default function Home() {
               </Card>
             ))}
           </div>
-        </section>
-
-        <Separator className="w-full max-w-6xl" />
-
-        {/* Trust / compliance strip */}
-        <section
-          id="tietoturva"
-          className="w-full max-w-6xl px-6 py-16 sm:py-20"
-        >
-          <Card className="border-none bg-primary text-primary-foreground ring-0">
-            <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:flex-row sm:justify-between sm:text-left">
-              <div className="flex items-center gap-4">
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-foreground/10">
-                  <FileText className="size-6" />
-                </div>
-                <div>
-                  <p className="text-lg font-semibold">
-                    Valmis integroitumaan potilastietojärjestelmääsi
-                  </p>
-                  <p className="mt-1 text-sm text-primary-foreground/80">
-                    Salattu tiedonsiirto ja auditoitava lokitus alusta alkaen.
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="secondary"
-                size="lg"
-                className="shrink-0 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-              >
-                Varaa esittely
-              </Button>
-            </CardContent>
-          </Card>
         </section>
       </main>
 

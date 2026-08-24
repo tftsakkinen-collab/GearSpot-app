@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Flag, Send, X, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { Flag, Send, X, CheckCircle2, AlertTriangle, Loader2, Sparkles } from "lucide-react";
+import confetti from "canvas-confetti";
 import { getRecentActionLogs, logAction } from "@/lib/action-logger";
-import { addVocabularyEntry } from "@/lib/custom-vocabulary";
+import { addVocabularyEntry, getCustomVocabulary } from "@/lib/custom-vocabulary";
 
 export interface STTErrorModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export function STTErrorModal({ isOpen, onClose, initialText = "" }: STTErrorMod
   const [correctWord, setCorrectWord] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [reportedCount, setReportedCount] = useState<number>(() => getCustomVocabulary().length);
 
   if (!isOpen) return null;
 
@@ -24,7 +26,18 @@ export function STTErrorModal({ isOpen, onClose, initialText = "" }: STTErrorMod
     if (!wrongWord.trim() || !correctWord.trim()) return;
 
     // Tallenna välittömästi paikalliseen sanakirjaan (Double-Barrel STT Architecture)
-    addVocabularyEntry(correctWord.trim(), wrongWord.trim());
+    const updated = addVocabularyEntry(correctWord.trim(), wrongWord.trim());
+    const newCount = updated.length;
+    setReportedCount(newCount);
+
+    // Pelillinen animaatio (Confetti milestoneilla)
+    if ([1, 10, 50].includes(newCount) || newCount % 5 === 0) {
+      try {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+      } catch (cErr) {
+        console.log("Confetti trigger:", cErr);
+      }
+    }
 
     const webhookUrl =
       process.env.NEXT_PUBLIC_BUG_WEBHOOK_URL ||
@@ -113,18 +126,20 @@ export function STTErrorModal({ isOpen, onClose, initialText = "" }: STTErrorMod
         </div>
 
         {status === "success" ? (
-          <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
-            <CheckCircle2 className="size-10 text-green-500 animate-bounce" />
-            <h4 className="text-base font-semibold text-foreground">Korjaus tallennettu!</h4>
-            <p className="text-xs text-muted-foreground">
-              Kiitos! Tämä tieto hyödynnetään käyttäjäkohtaisen STT-oppimissanakirjan opetuksessa.
+          <div className="flex flex-col items-center justify-center py-6 text-center gap-2 animate-in zoom-in-95 duration-200">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-green-500/15 text-green-600 dark:text-green-400 mb-1">
+              <CheckCircle2 className="size-8" />
+            </div>
+            <h4 className="text-base font-bold text-foreground">Korjaus tallennettu!</h4>
+            <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+              Tämä oli <span className="font-semibold text-primary">{reportedCount}.</span> opettamasi sana. Kiitos, että teet Kirjaajanteesta älykkäämmän assistentin.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-3 rounded-xl bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              className="mt-3 rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
             >
-              Sulje
+              Jatka sanelua
             </button>
           </div>
         ) : (
