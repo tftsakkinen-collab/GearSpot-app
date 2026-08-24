@@ -885,6 +885,10 @@ export function DictationPanel() {
 
   return (
     <div className="flex w-full flex-col items-center gap-4">
+      <div className="flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400">
+        <Sparkles className="size-3.5" />
+        <span>🎁 Vapaa testikäyttö – Maksutietoja ei tarvita!</span>
+      </div>
       <div className="relative">
         {isRecording && (
           <span className="absolute inset-0 animate-ping rounded-full bg-destructive/40" />

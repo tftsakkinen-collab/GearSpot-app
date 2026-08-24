@@ -12,24 +12,12 @@ export const runtime = "nodejs";
  */
 const ACTIVE_STATUSES = new Set(["trialing", "active"]);
 
+// Asetus vapaalle testikäytölle ilman maksutietoja
+export const FREE_TEST_PERIOD_ACTIVE = true;
+
 export async function GET(req: Request) {
-  const deviceId = new URL(req.url).searchParams.get("deviceId");
-
-  if (!deviceId) {
-    return Response.json(
-      { error: "Laitetunnistetta (deviceId) ei vastaanotettu." },
-      { status: 400 }
-    );
-  }
-
-  // Jos Supabasea ei ole konfiguroitu tässä ympäristössä, päästetään
-  // käyttäjä läpi lokaalin/dev-testauksen ajaksi sen sijaan että koko
-  // sovellus jäisi lukkoon — sama varaperiaate kuin /api/templates-reitillä.
-  if (!isSupabaseConfigured || !supabaseServerClient) {
-    console.warn(
-      "[Kirjaajanne] /api/subscription-status: Supabase ei ole konfiguroitu — maksumuuri ohitetaan (dev-varakäytös)."
-    );
-    return Response.json({ isActive: true, status: "unconfigured" });
+  if (FREE_TEST_PERIOD_ACTIVE) {
+    return Response.json({ isActive: true, status: "active", isFreeBeta: true });
   }
 
   try {

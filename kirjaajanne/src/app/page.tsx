@@ -69,9 +69,9 @@ export default function Home() {
 
       <main className="flex flex-1 flex-col items-center">
         <section className="flex w-full max-w-3xl flex-col items-center px-6 pt-20 pb-16 text-center sm:pt-28">
-          <Badge variant="secondary" className="mb-6 gap-1.5 py-1.5">
+          <Badge variant="secondary" className="mb-6 gap-1.5 py-1.5 bg-green-500/15 text-green-700 dark:text-green-300 border border-green-500/30 font-semibold">
             <Sparkles className="size-3.5" />
-            Tekoälynatiivi kliininen kirjaaminen
+            🎁 Vapaa testikäyttö aktiivinen – Maksutietoja EI tarvita!
           </Badge>
 
           <h1 className="text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl lg:text-6xl">
