@@ -2,6 +2,18 @@
 
 Tämä on paikallinen (`kirjaajanne`-repo) kopio Kirjaajannetta koskevista päätöslokimerkinnöistä. Kanoninen, kaikkien projektien yhteinen loki ylläpidetään Google Drivessa (`G:\My Drive\AI - automaatiot\04_DECISION_CHANGELOG.md`, ks. `03_DEV_AND_SYSTEMS.md` / `config/rules.md`, kohta 2). Uusin merkintä ylimpänä.
 
+## 2026-08-24 — Bugiraportointijärjestelmän Apps Script -backend (Trello / Notion webhook-silta)
+
+**Uudet komponentit / tiedostot:**
+- `google-apps-script/Code.gs` (Google Apps Script Web App -toteutus)
+
+**Yhteenveto:**
+- Rakennettiin Google Apps Script -backend (`doPost(e)`), joka toimii turvallisena webhook-siltana tulevan frontend-sovelluksen ja Kanban-taulun (tuki sekä Trello että Notion) välillä.
+- **Payload-tuki:** Vastaanottaa `userText` (ongelmakuvaus), `deviceInfo` (OS, sovellusversio, laitemalli) ja `actionLogs` (käyttöliittymä- / virhelokit).
+- **Turvallisuus & Avaintenhallinta:** API-avaimet ja lista-ID:t haetaan dynamic-muodossa `PropertiesService.getScriptProperties()` -rajapinnasta (ei kovakoodattuja avaimia koodissa).
+- **Tikkettien muotoilu:** Generoi tiketin otsikkoon sovellusversion ja lyhyen otteen käyttäjän ongelmakuvauksesta. Tiketin leipätekstiin muotoillaan laitetiedot, aikaleima ja lokimerkinnät selkeinä Markdown-lohkoina.
+- **Vastaukset & Virheenkäsittely:** Palauttaa JSON-vastauksen (`ContentService.MimeType.JSON`) HTTP 200/400/500 -tiloilla ja virhelokittaa mahdolliset HTTP-pyyntövirheet.
+
 ---
 
 ## 2026-08-23 — Stripe-maksuintegraatio (SaaS: 1kk ilmainen kokeilu, sitten 20 EUR/kk)
