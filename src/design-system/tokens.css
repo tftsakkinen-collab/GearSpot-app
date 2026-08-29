@@ -1,40 +1,64 @@
 :root {
   --bg: oklch(98.5% .006 140);
   --surface: oklch(100% 0 0);
+  --surface-2: oklch(96.5% .006 140);
+  --surface-elevated: oklch(98% .006 140);
   --text: oklch(22% .02 150);
-  --muted: oklch(50% .02 150);
+  --text-muted: oklch(50% .02 150);
+  --muted: var(--text-muted);
   --border: oklch(90% .012 150);
-  --primary: oklch(48% .11 155);
-  --green-text: oklch(0.42 0.12 155);  /* #036B4C, ≥ 4.5:1 kontrasti valkoisella */
-  --primary-ink: oklch(99% 0 0);
-  --accent: oklch(60% .10 230);        /* järvi/vesi-sininen (SUP) */
-  --ring: var(--primary);
+  --ring: var(--accent);
+  --radius-sm: .5rem;
   --radius: .75rem;
+  --radius-pill: 999px;
   --glass-blur: 12px;
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --step-0: clamp(1rem, .96rem + .2vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.1rem + .5vw, 1.4rem);
+  --step-2: clamp(1.45rem, 1.25rem + 1vw, 1.9rem);
+  --step-3: clamp(1.8rem, 1.45rem + 1.8vw, 2.6rem);
+  --step-4: clamp(2.2rem, 1.6rem + 3vw, 3.5rem);
+  --success: oklch(48% .13 155);
+  --warning: oklch(70% .14 75);
+  --danger: oklch(52% .20 25);
+  --info: oklch(52% .13 235);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: oklch(20% .02 150);
     --surface: oklch(24% .022 150);
+    --surface-2: oklch(28% .024 150);
+    --surface-elevated: oklch(26% .022 150);
     --text: oklch(95% .01 140);
-    --muted: oklch(70% .02 145);
+    --text-muted: oklch(70% .02 145);
+    --muted: var(--text-muted);
     --border: oklch(32% .02 150);
-    --primary: oklch(62% .12 155);
-    --green-text: oklch(0.80 0.11 158);/* vaalea minttu tekstille tummassa tilassa */
-    --primary-ink: oklch(16% .02 150);
-    --accent: oklch(68% .10 230);
+    --success: oklch(72% .14 155);
+    --warning: oklch(80% .13 80);
+    --danger: oklch(70% .18 25);
+    --info: oklch(75% .12 235);
   }
 }
 
 :root[data-theme="dark"] {
   --bg: oklch(20% .02 150);
   --surface: oklch(24% .022 150);
+  --surface-2: oklch(28% .024 150);
+  --surface-elevated: oklch(26% .022 150);
   --text: oklch(95% .01 140);
-  --muted: oklch(70% .02 145);
+  --text-muted: oklch(70% .02 145);
+  --muted: var(--text-muted);
   --border: oklch(32% .02 150);
-  --primary: oklch(62% .12 155);
-  --green-text: oklch(0.80 0.11 158);  /* vaalea minttu tekstille tummassa tilassa */
-  --primary-ink: oklch(16% .02 150);
-  --accent: oklch(68% .10 230);
+  --success: oklch(72% .14 155);
+  --warning: oklch(80% .13 80);
+  --danger: oklch(70% .18 25);
+  --info: oklch(75% .12 235);
 }

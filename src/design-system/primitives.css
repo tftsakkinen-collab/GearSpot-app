@@ -1,0 +1,87 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  text-decoration: none;
+  transition: transform .15s cubic-bezier(.16, 1, .3, 1), background-color .15s, border-color .15s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn--ghost:hover {
+  background: color-mix(in oklab, var(--text) 8%, transparent);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.btn--sm {
+  min-height: 40px;
+  padding: 0 1rem;
+  font-size: .9rem;
+}
+
+.btn--lg {
+  min-height: 52px;
+  padding: 0 1.75rem;
+  font-size: 1.05rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  border-radius: var(--radius-pill);
+  padding: .35em .8em;
+  font-size: .8rem;
+  font-weight: 600;
+  background: var(--accent-quiet);
+  color: var(--on-accent-quiet);
+}
+
+.glass {
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid color-mix(in oklab, var(--text) 12%, transparent);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--surface);
+  }
+}
