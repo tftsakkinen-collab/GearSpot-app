@@ -148,9 +148,9 @@ export default function App() {
             </div>
             <div className="flex items-center">
               <span className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text)] font-heading">
-                Vuokraaj<span className="text-emerald-600">anne</span>
+                Vuokraaj<span className="text-[var(--green-text)] font-extrabold">anne</span>
               </span>
-              <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+              <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-[var(--green-text)] border border-emerald-500/30">
                 Oulu
               </span>
             </div>
@@ -248,8 +248,8 @@ export default function App() {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Micro Tag */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 dark:bg-emerald-950/90 border border-emerald-500/30 text-[var(--green-text)] text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--green-text)] shrink-0" />
             <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden vuokraus Oulussa</span>
           </div>
 
@@ -269,19 +269,19 @@ export default function App() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               
               {/* Keyword Search */}
-              <div className="flex items-center gap-2.5 w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-2.5">
+              <div className="flex items-center gap-2.5 w-full sm:flex-1 px-3 sm:px-4 py-1.5 min-h-[44px]">
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted)] shrink-0" />
                 <input
                   type="text"
                   placeholder="Mitä varustetta etsit? (esim. Saimaa SUP, Red Paddle...)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-sm text-[var(--text)] placeholder-[var(--muted)] focus:outline-none"
+                  className="w-full min-h-[44px] bg-transparent text-sm text-[var(--text)] placeholder-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] rounded-lg"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
-                    className="p-1 rounded-full text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--border)]/40 transition"
+                    className="p-2.5 rounded-full text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--border)]/40 transition min-w-[44px] min-h-[44px] flex items-center justify-center"
                     aria-label="Tyhjennä haku"
                   >
                     <X className="w-4 h-4" />
@@ -290,12 +290,12 @@ export default function App() {
               </div>
 
               {/* Location Selector */}
-              <div className="flex items-center gap-2 w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 border-t sm:border-t-0 sm:border-l border-[var(--border)]">
+              <div className="flex items-center gap-2 w-full sm:w-auto px-3 sm:px-4 py-1.5 border-t sm:border-t-0 sm:border-l border-[var(--border)] min-h-[44px]">
                 <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <select 
                   value={selectedLocation} 
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full sm:w-auto bg-transparent text-xs font-semibold text-[var(--text)] focus:outline-none cursor-pointer pr-2"
+                  className="w-full sm:w-auto min-h-[44px] bg-transparent text-xs font-semibold text-[var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] rounded-lg cursor-pointer pr-2"
                 >
                   {LOCATIONS.map((loc) => (
                     <option key={loc} value={loc} className="bg-[var(--surface)] text-[var(--text)]">{loc}</option>
@@ -306,7 +306,7 @@ export default function App() {
               {/* Submit CTA */}
               <button 
                 onClick={() => document.getElementById('gear')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-full bg-gearspot-800 hover:bg-gearspot-900 text-white text-xs font-bold transition shadow-sm active:scale-95 shrink-0"
+                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-full bg-gearspot-800 hover:bg-gearspot-900 text-white text-xs font-bold transition shadow-sm active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary)]"
               >
                 <span>Hae varusteita</span>
                 <ArrowRight className="w-4 h-4 text-emerald-300" />
@@ -316,7 +316,7 @@ export default function App() {
           </div>
 
           {/* Quick Category Filter Pills */}
-          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 pb-2 sm:pb-0 px-2 sm:px-0">
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2.5 pb-2 sm:pb-0 px-2 sm:px-0">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon
               const isActive = selectedCategory === cat.id
@@ -324,13 +324,13 @@ export default function App() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
+                  className={`min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-all shrink-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--primary)] ${
                     isActive 
                       ? 'bg-gearspot-800 text-white shadow-xs' 
                       : 'bg-[var(--surface)] hover:bg-[var(--border)]/30 text-[var(--muted)] border border-[var(--border)] hover:border-emerald-500/40'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-300' : 'text-[var(--muted)]'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-300' : 'text-[var(--muted)]'}`} />
                   <span>{cat.name}</span>
                 </button>
               )
@@ -345,7 +345,7 @@ export default function App() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-4 border-b border-[var(--border)] gap-3 sm:gap-4">
           <div>
-            <span className="text-[11px] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase">Saatavilla Oulussa</span>
+            <span className="text-[11px] sm:text-xs font-extrabold text-[var(--green-text)] tracking-wider uppercase">Saatavilla Oulussa</span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading mt-0.5 sm:mt-1">
               Suosituimmat retkivarusteet
             </h2>
@@ -358,7 +358,7 @@ export default function App() {
             {hasActiveFilters && (
               <button 
                 onClick={resetFilters}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline transition"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[var(--green-text)] hover:underline transition"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Nollaa</span>
@@ -388,7 +388,7 @@ export default function App() {
                 className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 hover:border-emerald-500/40 transition-all duration-300 flex flex-col"
               >
                 {/* Image Container */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-[var(--border)]/30">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[var(--border)]/30 rounded-t-2xl">
                   <img 
                     src={gear.imageUrl} 
                     alt={gear.title}
@@ -400,38 +400,38 @@ export default function App() {
                   
                   {/* Category Tag */}
                   {gear.tag && (
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/70 backdrop-blur-md text-white shadow-xs">
+                    <div className="absolute top-2.5 left-2.5 z-10">
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/65 backdrop-blur-md text-white shadow-xs border border-white/20">
                         {gear.tag}
                       </span>
                     </div>
                   )}
 
                   {/* Availability Chip */}
-                  <div className="absolute top-3 right-14">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide shadow-xs backdrop-blur-md ${
+                  <div className="absolute top-2.5 right-14 z-10">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide shadow-xs backdrop-blur-md border border-white/20 ${
                       gear.isAvailable 
-                        ? 'bg-emerald-600/90 text-white' 
-                        : 'bg-amber-600/90 text-white'
+                        ? 'bg-[var(--green-text)] text-white' 
+                        : 'bg-amber-700 text-white'
                     }`}>
                       {gear.isAvailable ? 'Vapaa' : 'Varattu'}
                     </span>
                   </div>
 
-                  {/* Favorite Toggle Button */}
+                  {/* Favorite Toggle Button (44x44px Touch Target) */}
                   <button 
                     onClick={() => toggleFavorite(gear.id)}
-                    className="absolute top-3 right-3 w-9 h-9 rounded-full bg-[var(--surface)]/90 backdrop-blur-md hover:bg-[var(--surface)] flex items-center justify-center text-[var(--text)] transition active:scale-90 shadow-sm border border-[var(--border)]/40"
+                    className="absolute top-2.5 right-2.5 z-10 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-black/65 backdrop-blur-md hover:bg-black/80 flex items-center justify-center text-white transition active:scale-90 shadow-sm border border-white/20"
                     aria-label="Lisää suosikkeihin"
                     title={favorites.includes(gear.id) ? 'Poista suosikeista' : 'Lisää suosikkeihin'}
                   >
-                    <Heart className={`w-4 h-4 transition-colors ${favorites.includes(gear.id) ? 'fill-rose-500 text-rose-500' : 'text-[var(--muted)]'}`} />
+                    <Heart className={`w-4.5 h-4.5 transition-colors ${favorites.includes(gear.id) ? 'fill-rose-500 text-rose-500' : 'text-white/90'}`} />
                   </button>
 
-                  {/* Location badge */}
-                  <div className="absolute bottom-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--surface)]/90 backdrop-blur-sm text-[11px] font-semibold text-[var(--text)] shadow-xs border border-[var(--border)]/40">
-                    <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>{gear.location}</span>
+                  {/* Location badge (Overlay pill with max-width - NO cutoff) */}
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 max-w-[calc(100%-20px)] truncate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/65 backdrop-blur-md text-[11px] font-semibold text-white shadow-xs border border-white/20">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                    <span className="truncate">{gear.location}</span>
                   </div>
                 </div>
 
@@ -440,7 +440,7 @@ export default function App() {
                   <div>
                     {/* Brand & Rating */}
                     <div className="flex items-center justify-between text-xs text-[var(--muted)] mb-1.5">
-                      <span className="font-semibold uppercase tracking-wider text-[10px] text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                      <span className="font-bold uppercase tracking-wider text-[10px] text-[var(--green-text)] bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
                         {gear.brand}
                       </span>
                       <div className="flex items-center gap-1 text-[var(--text)] font-semibold">
@@ -451,7 +451,7 @@ export default function App() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-bold text-[var(--text)] text-base leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition line-clamp-2 mt-1">
+                    <h3 className="font-bold text-[var(--text)] text-base leading-snug group-hover:text-[var(--green-text)] transition line-clamp-2 mt-1">
                       {gear.title}
                     </h3>
 
@@ -484,7 +484,7 @@ export default function App() {
                           {gear.owner.name}
                         </span>
                         {gear.owner.isSuperOwner && (
-                          <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">Super-omistaja</span>
+                          <span className="text-[9px] font-extrabold text-[var(--green-text)]">Super-omistaja</span>
                         )}
                       </div>
                     </div>
@@ -515,7 +515,7 @@ export default function App() {
             </p>
             <button 
               onClick={resetFilters}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-semibold border border-emerald-500/20 hover:bg-emerald-500/20 transition active:scale-95"
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-500/10 text-[var(--green-text)] text-xs font-semibold border border-emerald-500/20 hover:bg-emerald-500/20 transition active:scale-95 min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Tyhjennä suodattimet</span>
@@ -531,7 +531,7 @@ export default function App() {
             
             <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <ShieldCheck className="w-5 h-5 text-[var(--green-text)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Turvallinen vertaisvuokraus</h4>
@@ -543,7 +543,7 @@ export default function App() {
 
             <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <MapPin className="w-5 h-5 text-[var(--green-text)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Helppo nouto Oulusta</h4>
@@ -555,7 +555,7 @@ export default function App() {
 
             <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <Sparkles className="w-5 h-5 text-[var(--green-text)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Järkevä & Ekologinen</h4>
@@ -578,10 +578,10 @@ export default function App() {
           <span className="font-semibold text-[var(--text)]">Vuokraajanne</span>
           <span>— Tiedottajanne Oy, Oulu</span>
         </div>
-        <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-[var(--text)] transition">Käyttöehdot</a>
-          <a href="#" className="hover:text-[var(--text)] transition">Tietosuoja</a>
-          <a href="#" className="hover:text-[var(--text)] transition">Yhteystiedot</a>
+        <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
+          <a href="#" className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30">Käyttöehdot</a>
+          <a href="#" className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30">Tietosuoja</a>
+          <a href="#" className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30">Yhteystiedot</a>
         </div>
       </footer>
     </div>
