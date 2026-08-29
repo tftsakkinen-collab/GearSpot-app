@@ -5,6 +5,7 @@
   --muted: oklch(50% .02 150);
   --border: oklch(90% .012 150);
   --primary: oklch(48% .11 155);
+  --green-text: oklch(0.42 0.12 155);  /* #036B4C, ≥ 4.5:1 kontrasti valkoisella */
   --primary-ink: oklch(99% 0 0);
   --accent: oklch(60% .10 230);        /* järvi/vesi-sininen (SUP) */
   --ring: var(--primary);
@@ -20,6 +21,7 @@
     --muted: oklch(70% .02 145);
     --border: oklch(32% .02 150);
     --primary: oklch(62% .12 155);
+    --green-text: oklch(0.80 0.11 158);/* vaalea minttu tekstille tummassa tilassa */
     --primary-ink: oklch(16% .02 150);
     --accent: oklch(68% .10 230);
   }
@@ -32,6 +34,7 @@
   --muted: oklch(70% .02 145);
   --border: oklch(32% .02 150);
   --primary: oklch(62% .12 155);
+  --green-text: oklch(0.80 0.11 158);  /* vaalea minttu tekstille tummassa tilassa */
   --primary-ink: oklch(16% .02 150);
   --accent: oklch(68% .10 230);
 }
