@@ -8,8 +8,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme');
+          if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else if (saved === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#F9FAF8] text-neutral-900 antialiased selection:bg-gearspot-100 selection:text-gearspot-900">
+  <body class="antialiased selection:bg-emerald-500/20 selection:text-emerald-900">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

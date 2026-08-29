@@ -18,7 +18,9 @@ import {
   Heart,
   CheckCircle2,
   Package,
-  RotateCcw
+  RotateCcw,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { fetchListings } from './services/api'
 import { MOCK_LISTINGS } from './data/mockListings'
@@ -46,6 +48,22 @@ export default function App() {
   const [selectedLocation, setSelectedLocation] = useState('Koko Oulu')
   const [favorites, setFavorites] = useState([])
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [theme, setTheme] = useState(() => {
+    try {
+      return document.documentElement.getAttribute('data-theme') || 'light'
+    } catch (e) {
+      return 'light'
+    }
+  })
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark'
+    setTheme(nextTheme)
+    try {
+      document.documentElement.setAttribute('data-theme', nextTheme)
+      localStorage.setItem('theme', nextTheme)
+    } catch (e) {}
+  }
 
   // Dynaaminen tietokanta-/API-haku
   useEffect(() => {
@@ -96,35 +114,45 @@ export default function App() {
   const hasActiveFilters = searchQuery !== '' || selectedCategory !== 'all' || selectedLocation !== 'Koko Oulu'
 
   return (
-    <div className="min-h-screen bg-[#FBFDFB] text-neutral-800 flex flex-col selection:bg-emerald-100 selection:text-emerald-900 antialiased">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col selection:bg-emerald-500/20 selection:text-emerald-900 antialiased transition-colors duration-200">
       {/* 1. MINIMALIST NAVIGATION */}
-      <header className="sticky top-0 z-50 bg-[#FBFDFB]/95 backdrop-blur-md border-b border-neutral-200/70 transition-all">
+      <header className="sticky top-0 z-50 glass border-b border-[var(--border)] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          {/* Brand Logo */}
+          {/* Brand Logo - UNCHANGED */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gearspot-800 flex items-center justify-center text-white shadow-sm ring-1 ring-gearspot-900/10 shrink-0">
               <Waves className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300 stroke-[2.2]" />
             </div>
             <div className="flex items-center">
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-gearspot-900 font-heading">
+              <span className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text)] font-heading">
                 Gear<span className="text-emerald-600">Spot</span>
               </span>
-              <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-gearspot-800 border border-emerald-200/60">
+              <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
                 Oulu
               </span>
             </div>
           </div>
 
           {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-neutral-600">
-            <a href="#gear" className="text-gearspot-900 hover:text-emerald-700 transition">Selaa varusteita</a>
-            <a href="#how-it-works" className="hover:text-gearspot-900 transition">Miten se toimii</a>
-            <a href="#safety" className="hover:text-gearspot-900 transition">Turvallisuus & Vakuutus</a>
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-[var(--muted)]">
+            <a href="#gear" className="text-[var(--text)] hover:text-emerald-600 transition">Selaa varusteita</a>
+            <a href="#how-it-works" className="hover:text-[var(--text)] transition">Miten se toimii</a>
+            <a href="#safety" className="hover:text-[var(--text)] transition">Turvallisuus & Vakuutus</a>
           </nav>
 
-          {/* Action CTAs */}
+          {/* Action CTAs & Theme Toggle */}
           <div className="hidden sm:flex items-center gap-3">
-            <button className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 px-3 py-2 transition rounded-lg hover:bg-neutral-100/60">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[var(--text)] hover:bg-[var(--border)]/40 transition active:scale-95 border border-[var(--border)]"
+              aria-label={theme === 'dark' ? 'Vaihda vaaleaan teemaan' : 'Vaihda tummaan teemaan'}
+              title={theme === 'dark' ? 'Vaalea tila' : 'Tumma tila'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />}
+            </button>
+
+            <button className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40">
               Kirjaudu
             </button>
             <button className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full bg-gearspot-800 text-white hover:bg-gearspot-900 transition shadow-sm hover:shadow active:scale-[0.98]">
@@ -133,42 +161,52 @@ export default function App() {
             </button>
           </div>
 
-          {/* Mobile menu trigger */}
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl text-neutral-700 hover:bg-neutral-100 transition active:scale-95"
-            aria-label="Avaa valikko"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Mobile menu & Theme toggle trigger */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <button
+              onClick={toggleTheme}
+              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[var(--text)] border border-[var(--border)] transition active:scale-95"
+              aria-label={theme === 'dark' ? 'Vaihda vaaleaan teemaan' : 'Vaihda tummaan teemaan'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />}
+            </button>
+
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-[var(--text)] hover:bg-[var(--border)]/40 transition active:scale-95 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Avaa valikko"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-b border-neutral-200 bg-white px-4 py-5 space-y-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden border-b border-[var(--border)] bg-[var(--surface)] px-4 py-5 space-y-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
             <a 
               href="#gear" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-50"
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30"
             >
               Selaa varusteita
             </a>
             <a 
               href="#how-it-works" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-50"
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30"
             >
               Miten se toimii
             </a>
             <a 
               href="#safety" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 text-sm font-medium text-neutral-800 rounded-lg hover:bg-neutral-50"
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30"
             >
               Turvallisuus & Vakuutus
             </a>
-            <div className="pt-3 border-t border-neutral-100 flex flex-col gap-2.5">
-              <button className="w-full text-center py-3 text-xs font-semibold rounded-xl bg-neutral-100 text-neutral-800 hover:bg-neutral-200 transition">
+            <div className="pt-3 border-t border-[var(--border)] flex flex-col gap-2.5">
+              <button className="w-full text-center py-3 text-xs font-semibold rounded-xl bg-[var(--border)]/50 text-[var(--text)] hover:bg-[var(--border)] transition">
                 Kirjaudu sisään
               </button>
               <button className="w-full inline-flex items-center justify-center gap-2 text-center py-3 text-xs font-semibold rounded-xl bg-gearspot-800 text-white shadow-sm">
@@ -183,44 +221,44 @@ export default function App() {
       {/* 2. HERO SECTION */}
       <section className="relative pt-10 pb-14 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28 overflow-hidden">
         {/* Background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[500px] md:w-[700px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-emerald-100/60 via-gearspot-100/30 to-transparent blur-3xl rounded-full -z-10 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[500px] md:w-[700px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-emerald-500/20 via-emerald-500/10 to-transparent blur-3xl rounded-full -z-10 pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Micro Tag */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50/90 border border-emerald-200/60 text-gearspot-800 text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden vuokraus Oulussa</span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-neutral-900 font-heading leading-[1.15] sm:leading-[1.12]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text)] font-heading leading-[1.15] sm:leading-[1.12]">
             Vuokraa SUP-laudat ja varusteet. <br className="hidden sm:inline" />
-            <span className="text-gearspot-800">Suoraan paikallisilta oululaisilta.</span>
+            <span className="text-[var(--primary)]">Suoraan paikallisilta oululaisilta.</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto font-normal leading-relaxed">
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[var(--muted)] max-w-2xl mx-auto font-normal leading-relaxed">
             Kaikkea ei tarvitse ostaa omaksi varastoon. Nappaa laadukas SUP-lauta tai retkikeitin päiväksi tai viikonlopuksi naapuriltasi Oulussa.
           </p>
 
           {/* 3. AIRY & MOBILE RESPONSIVE SEARCH BAR COMPONENT */}
-          <div className="mt-8 sm:mt-10 max-w-3xl mx-auto bg-white p-2 sm:p-2.5 rounded-2xl sm:rounded-full border border-neutral-200/80 shadow-lg shadow-neutral-900/5 transition-all focus-within:border-gearspot-700/60 focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="mt-8 sm:mt-10 max-w-3xl mx-auto bg-[var(--surface)] p-2 sm:p-2.5 rounded-2xl sm:rounded-full border border-[var(--border)] shadow-lg transition-all focus-within:border-[var(--primary)] focus-within:ring-4 focus-within:ring-emerald-500/10">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               
               {/* Keyword Search */}
               <div className="flex items-center gap-2.5 w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-2.5">
-                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-neutral-400 shrink-0" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted)] shrink-0" />
                 <input
                   type="text"
                   placeholder="Mitä varustetta etsit? (esim. Saimaa SUP, Red Paddle...)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-transparent text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none"
+                  className="w-full bg-transparent text-sm text-[var(--text)] placeholder-[var(--muted)] focus:outline-none"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
-                    className="p-1 rounded-full text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition"
+                    className="p-1 rounded-full text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--border)]/40 transition"
                     aria-label="Tyhjennä haku"
                   >
                     <X className="w-4 h-4" />
@@ -229,15 +267,15 @@ export default function App() {
               </div>
 
               {/* Location Selector */}
-              <div className="flex items-center gap-2 w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 border-t sm:border-t-0 sm:border-l border-neutral-100 sm:border-neutral-200">
-                <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+              <div className="flex items-center gap-2 w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 border-t sm:border-t-0 sm:border-l border-[var(--border)]">
+                <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <select 
                   value={selectedLocation} 
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full sm:w-auto bg-transparent text-xs font-semibold text-neutral-700 focus:outline-none cursor-pointer pr-2"
+                  className="w-full sm:w-auto bg-transparent text-xs font-semibold text-[var(--text)] focus:outline-none cursor-pointer pr-2"
                 >
                   {LOCATIONS.map((loc) => (
-                    <option key={loc} value={loc}>{loc}</option>
+                    <option key={loc} value={loc} className="bg-[var(--surface)] text-[var(--text)]">{loc}</option>
                   ))}
                 </select>
               </div>
@@ -255,7 +293,7 @@ export default function App() {
           </div>
 
           {/* Quick Category Filter Pills */}
-          <div className="mt-6 sm:mt-8 flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 sm:pb-0 px-2 sm:px-0 scrollbar-none no-scrollbar">
+          <div className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-2 pb-2 sm:pb-0 px-2 sm:px-0">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon
               const isActive = selectedCategory === cat.id
@@ -266,10 +304,10 @@ export default function App() {
                   className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-medium transition-all shrink-0 active:scale-95 ${
                     isActive 
                       ? 'bg-gearspot-800 text-white shadow-xs' 
-                      : 'bg-white/90 hover:bg-white text-neutral-600 border border-neutral-200/80 hover:border-neutral-300'
+                      : 'bg-[var(--surface)] hover:bg-[var(--border)]/30 text-[var(--muted)] border border-[var(--border)] hover:border-emerald-500/40'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-300' : 'text-neutral-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-emerald-300' : 'text-[var(--muted)]'}`} />
                   <span>{cat.name}</span>
                 </button>
               )
@@ -442,41 +480,41 @@ export default function App() {
       </section>
 
       {/* 5. TRUST & VALUE PROPOSITION */}
-      <section id="safety" className="bg-white border-y border-neutral-200/60 py-12 sm:py-16 my-6">
+      <section id="safety" className="bg-[var(--surface)] border-y border-[var(--border)] py-12 sm:py-16 my-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             
-            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-neutral-50/60 transition">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-100">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-neutral-900">Turvallinen vertaisvuokraus</h4>
-                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                <h4 className="font-bold text-sm text-[var(--text)]">Turvallinen vertaisvuokraus</h4>
+                <p className="text-xs text-[var(--muted)] mt-1 leading-relaxed">
                   Vahva Suomi.fi / pankkitunnistautuminen ja integroitu turvatakuu suojaavat sekä vuokraajaa että omistajaa.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-neutral-50/60 transition">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-100">
-                <MapPin className="w-5 h-5 text-emerald-600" />
+            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-neutral-900">Helppo nouto Oulusta</h4>
-                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
-                  Nouda varusteet suoraan omalta asuinalueeltasi: Tuirasta, Linnanmaalta, Keskustasta tai Kaakkurista ilman postikuluja.
+                <h4 className="font-bold text-sm text-[var(--text)]">Helppo nouto Oulusta</h4>
+                <p className="text-xs text-[var(--muted)] mt-1 leading-relaxed">
+                  Nouda varusteet suoraan omalta asuinalueeltasi: Tuirasta, Nallikarista, Linnanmaalta, Keskustasta tai Kaakkurista ilman postikuluja.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-neutral-50/60 transition">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-100">
-                <Sparkles className="w-5 h-5 text-emerald-600" />
+            <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                <Sparkles className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-neutral-900">Järkevä & Ekologinen</h4>
-                <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                <h4 className="font-bold text-sm text-[var(--text)]">Järkevä & Ekologinen</h4>
+                <p className="text-xs text-[var(--muted)] mt-1 leading-relaxed">
                   Käytä huippuvarusteita vain silloin kun tarvitset ja säästä satoja euroja hankintahinnoissa.
                 </p>
               </div>
@@ -487,18 +525,18 @@ export default function App() {
       </section>
 
       {/* 6. MINIMALIST FOOTER */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-4">
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--muted)] gap-4 border-t border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-gearspot-800 flex items-center justify-center text-white text-[10px] font-bold">
             G
           </div>
-          <span className="font-semibold text-neutral-700">GearSpot</span>
+          <span className="font-semibold text-[var(--text)]">GearSpot</span>
           <span>— Tiedottajanne Oy, Oulu</span>
         </div>
         <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-neutral-800 transition">Käyttöehdot</a>
-          <a href="#" className="hover:text-neutral-800 transition">Tietosuoja</a>
-          <a href="#" className="hover:text-neutral-800 transition">Yhteystiedot</a>
+          <a href="#" className="hover:text-[var(--text)] transition">Käyttöehdot</a>
+          <a href="#" className="hover:text-[var(--text)] transition">Tietosuoja</a>
+          <a href="#" className="hover:text-[var(--text)] transition">Yhteystiedot</a>
         </div>
       </footer>
     </div>

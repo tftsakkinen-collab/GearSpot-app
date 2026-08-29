@@ -1,3 +1,6 @@
+@import './design-system/tokens.css';
+@import './design-system/glass.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,16 +8,12 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
   }
   
   h1, h2, h3, .font-heading {
     font-family: 'Plus Jakarta Sans', sans-serif;
     letter-spacing: -0.02em;
   }
-}
-
-.subtle-glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
