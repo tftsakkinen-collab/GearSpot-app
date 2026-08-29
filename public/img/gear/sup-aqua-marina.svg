@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="skyGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917"/>
+      <stop offset="60%" stop-color="#44403c"/>
+      <stop offset="100%" stop-color="#78716c"/>
+    </linearGradient>
+    <linearGradient id="boardGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#skyGrad3)"/>
+  <!-- Water -->
+  <rect y="380" width="800" height="220" fill="#1c1917"/>
+  <path d="M 0 420 Q 200 400 400 420 T 800 420" stroke="#fdba74" stroke-width="3" fill="none" opacity="0.3"/>
+  <!-- SUP Board graphic -->
+  <ellipse cx="400" cy="490" rx="220" ry="32" fill="url(#boardGrad3)" stroke="#fb923c" stroke-width="4"/>
+  <ellipse cx="400" cy="490" rx="140" ry="18" fill="#7c2d12"/>
+  <!-- Paddle -->
+  <line x1="270" y1="350" x2="530" y2="505" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <ellipse cx="540" cy="510" rx="24" ry="12" fill="#ffffff" transform="rotate(30 540 510)"/>
+  <!-- Text Badge -->
+  <rect x="40" y="40" width="220" height="42" rx="21" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.2)"/>
+  <text x="150" y="66" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Aqua Marina Beast 10'6"</text>
+</svg>

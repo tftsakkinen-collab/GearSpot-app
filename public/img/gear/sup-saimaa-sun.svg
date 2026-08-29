@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="skyGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f2b20"/>
+      <stop offset="60%" stop-color="#1b4d3e"/>
+      <stop offset="100%" stop-color="#2d7a62"/>
+    </linearGradient>
+    <linearGradient id="boardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3bb98d"/>
+      <stop offset="100%" stop-color="#1a6e50"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#skyGrad1)"/>
+  <!-- Mountain contours -->
+  <path d="M 0 380 L 180 260 L 320 340 L 520 220 L 680 320 L 800 240 L 800 600 L 0 600 Z" fill="#0b1e16" opacity="0.8"/>
+  <!-- Water -->
+  <rect y="380" width="800" height="220" fill="#0a2319"/>
+  <path d="M 0 420 Q 200 400 400 420 T 800 420" stroke="#3bb98d" stroke-width="3" fill="none" opacity="0.4"/>
+  <path d="M 0 460 Q 200 440 400 460 T 800 460" stroke="#3bb98d" stroke-width="2" fill="none" opacity="0.3"/>
+  <!-- SUP Board graphic -->
+  <ellipse cx="400" cy="490" rx="220" ry="32" fill="url(#boardGrad1)" stroke="#52d6a5" stroke-width="4"/>
+  <ellipse cx="400" cy="490" rx="140" ry="18" fill="#144d37"/>
+  <!-- Paddle -->
+  <line x1="280" y1="360" x2="520" y2="510" stroke="#e0f2fe" stroke-width="6" stroke-linecap="round"/>
+  <ellipse cx="530" cy="515" rx="24" ry="12" fill="#e0f2fe" transform="rotate(30 530 515)"/>
+  <!-- Text Badge -->
+  <rect x="40" y="40" width="220" height="42" rx="21" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.2)"/>
+  <text x="150" y="66" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Saimaa SUP Sun 10.6</text>
+</svg>

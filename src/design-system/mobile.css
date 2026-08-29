@@ -1,0 +1,29 @@
+/* Mobile Accessibility & Layout Styles */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.card-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-location-pill {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  max-width: calc(100% - 16px);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.scrim-pill {
+  background: color-mix(in srgb, black 55%, transparent);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}

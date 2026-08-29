@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#1b3d2f"/>
+  <circle cx="400" cy="250" r="140" fill="#2d5e4a" opacity="0.6"/>
+  <path d="M 150 450 Q 400 350 650 450" stroke="#489775" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path d="M 200 480 Q 400 400 600 480" stroke="#236e50" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <text x="400" y="255" font-family="system-ui, sans-serif" font-size="32" font-weight="bold" fill="#ffffff" text-anchor="middle">Vuokraajanne</text>
+  <text x="400" y="295" font-family="system-ui, sans-serif" font-size="20" fill="#95d8b9" text-anchor="middle">Ulkoiluvälineet Oulu</text>
+</svg>

@@ -1,0 +1,49 @@
+:root {
+  --accent: oklch(46% .11 155);           /* metsänvihreä pääaksentti */
+  --accent-ink: oklch(99% 0 0);
+  --accent-2: oklch(50% .11 235);         /* järvi-sininen, toissijainen */
+  --accent-quiet: oklch(95% .03 155);
+  --on-accent-quiet: oklch(38% .12 155);
+  --bg: oklch(98.5% .006 140);
+  --surface: oklch(100% 0 0);
+  --text: oklch(22% .02 150);
+  --muted: oklch(50% .02 150);
+  --border: oklch(90% .012 150);
+  --primary: var(--accent);
+  --primary-ink: var(--accent-ink);
+  --ring: var(--accent);
+  --radius: .75rem;
+  --glass-blur: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --accent: oklch(70% .13 155);
+    --accent-ink: oklch(16% .04 155);
+    --accent-2: oklch(72% .11 235);
+    --accent-quiet: oklch(27% .05 155);
+    --on-accent-quiet: oklch(84% .10 155);
+    --bg: oklch(20% .02 150);
+    --surface: oklch(24% .022 150);
+    --text: oklch(95% .01 140);
+    --muted: oklch(70% .02 145);
+    --border: oklch(32% .02 150);
+    --primary: var(--accent);
+    --primary-ink: var(--accent-ink);
+  }
+}
+
+:root[data-theme="dark"] {
+  --accent: oklch(70% .13 155);
+  --accent-ink: oklch(16% .04 155);
+  --accent-2: oklch(72% .11 235);
+  --accent-quiet: oklch(27% .05 155);
+  --on-accent-quiet: oklch(84% .10 155);
+  --bg: oklch(20% .02 150);
+  --surface: oklch(24% .022 150);
+  --text: oklch(95% .01 140);
+  --muted: oklch(70% .02 145);
+  --border: oklch(32% .02 150);
+  --primary: var(--accent);
+  --primary-ink: var(--accent-ink);
+}

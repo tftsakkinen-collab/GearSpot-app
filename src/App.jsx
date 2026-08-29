@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { fetchListings } from './services/api'
 import { MOCK_LISTINGS } from './data/mockListings'
+import AvatarInitials from './components/AvatarInitials'
 
 const CATEGORIES = [
   { id: 'all', name: 'Kaikki varusteet', icon: Compass },
@@ -143,14 +144,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Brand Logo */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gearspot-800 flex items-center justify-center text-white shadow-sm ring-1 ring-gearspot-900/10 shrink-0">
-              <Waves className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300 stroke-[2.2]" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center text-[var(--accent-ink)] shadow-sm shrink-0">
+              <Waves className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--accent-ink)] stroke-[2.2]" />
             </div>
             <div className="flex items-center">
               <span className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text)] font-heading">
-                Vuokraaj<span className="text-[var(--green-text)] font-extrabold">anne</span>
+                Vuokraaj<span className="text-[var(--accent)] font-extrabold">anne</span>
               </span>
-              <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-[var(--green-text)] border border-emerald-500/30">
+              <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] border border-[var(--accent)]/20">
                 Oulu
               </span>
             </div>
@@ -158,7 +159,7 @@ export default function App() {
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-[var(--muted)]">
-            <a href="#gear" className="text-[var(--text)] hover:text-emerald-600 transition">Selaa varusteita</a>
+            <a href="#gear" className="text-[var(--text)] hover:text-[var(--accent)] transition">Selaa varusteita</a>
             <a href="#how-it-works" className="hover:text-[var(--text)] transition">Miten se toimii</a>
             <a href="#safety" className="hover:text-[var(--text)] transition">Turvallisuus & Vakuutus</a>
           </nav>
@@ -175,11 +176,11 @@ export default function App() {
               {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />}
             </button>
 
-            <button className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40">
+            <button className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40 min-h-[44px] inline-flex items-center">
               Kirjaudu
             </button>
-            <button className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full bg-gearspot-800 text-white hover:bg-gearspot-900 transition shadow-sm hover:shadow active:scale-[0.98]">
-              <PlusCircle className="w-4 h-4 text-emerald-300" />
+            <button className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 transition shadow-sm hover:shadow active:scale-[0.98] min-h-[44px]">
+              <PlusCircle className="w-4 h-4 text-[var(--accent-ink)]" />
               <span>Vuokraa oma varusteesi</span>
             </button>
           </div>
@@ -248,15 +249,15 @@ export default function App() {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Micro Tag */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 dark:bg-emerald-950/90 border border-emerald-500/30 text-[var(--green-text)] text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--green-text)] shrink-0" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-quiet)] border border-[var(--accent)]/20 text-[var(--on-accent-quiet)] text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--on-accent-quiet)] shrink-0" />
             <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden vuokraus Oulussa</span>
           </div>
 
           {/* Main Title */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text)] font-heading leading-[1.15] sm:leading-[1.12]">
             Vuokraa SUP-laudat ja varusteet. <br className="hidden sm:inline" />
-            <span className="text-[var(--primary)]">Suoraan paikallisilta oululaisilta.</span>
+            <span className="text-[var(--accent)]">Suoraan paikallisilta oululaisilta.</span>
           </h1>
 
           {/* Subtitle */}
@@ -265,7 +266,7 @@ export default function App() {
           </p>
 
           {/* 3. AIRY & MOBILE RESPONSIVE SEARCH BAR COMPONENT */}
-          <div className="mt-8 sm:mt-10 max-w-3xl mx-auto bg-[var(--surface)] p-2 sm:p-2.5 rounded-2xl sm:rounded-full border border-[var(--border)] shadow-lg transition-all focus-within:border-[var(--primary)] focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="mt-8 sm:mt-10 max-w-3xl mx-auto bg-[var(--surface)] p-2 sm:p-2.5 rounded-2xl sm:rounded-full border border-[var(--border)] shadow-lg transition-all focus-within:border-[var(--accent)] focus-within:ring-4 focus-within:ring-[var(--accent)]/10">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               
               {/* Keyword Search */}
@@ -276,7 +277,7 @@ export default function App() {
                   placeholder="Mitä varustetta etsit? (esim. Saimaa SUP, Red Paddle...)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full min-h-[44px] bg-transparent text-sm text-[var(--text)] placeholder-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] rounded-lg"
+                  className="w-full min-h-[44px] bg-transparent text-sm text-[var(--text)] placeholder-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded-lg"
                 />
                 {searchQuery && (
                   <button 
@@ -291,11 +292,11 @@ export default function App() {
 
               {/* Location Selector */}
               <div className="flex items-center gap-2 w-full sm:w-auto px-3 sm:px-4 py-1.5 border-t sm:border-t-0 sm:border-l border-[var(--border)] min-h-[44px]">
-                <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <MapPin className="w-4 h-4 text-[var(--accent)] shrink-0" />
                 <select 
                   value={selectedLocation} 
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full sm:w-auto min-h-[44px] bg-transparent text-xs font-semibold text-[var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] rounded-lg cursor-pointer pr-2"
+                  className="w-full sm:w-auto min-h-[44px] bg-transparent text-xs font-semibold text-[var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded-lg cursor-pointer pr-2"
                 >
                   {LOCATIONS.map((loc) => (
                     <option key={loc} value={loc} className="bg-[var(--surface)] text-[var(--text)]">{loc}</option>
@@ -306,10 +307,10 @@ export default function App() {
               {/* Submit CTA */}
               <button 
                 onClick={() => document.getElementById('gear')?.scrollIntoView({ behavior: 'smooth' })}
-                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-full bg-gearspot-800 hover:bg-gearspot-900 text-white text-xs font-bold transition shadow-sm active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--primary)]"
+                className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-full bg-[var(--accent)] hover:opacity-90 text-[var(--accent-ink)] text-xs font-bold transition shadow-sm active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]"
               >
                 <span>Hae varusteita</span>
-                <ArrowRight className="w-4 h-4 text-emerald-300" />
+                <ArrowRight className="w-4 h-4 text-[var(--accent-ink)]" />
               </button>
 
             </div>
@@ -324,13 +325,13 @@ export default function App() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-all shrink-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--primary)] ${
+                  className={`min-h-[44px] inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-all shrink-0 active:scale-95 focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
                     isActive 
-                      ? 'bg-gearspot-800 text-white shadow-xs' 
-                      : 'bg-[var(--surface)] hover:bg-[var(--border)]/30 text-[var(--muted)] border border-[var(--border)] hover:border-emerald-500/40'
+                      ? 'bg-[var(--accent)] text-[var(--accent-ink)] shadow-xs' 
+                      : 'bg-[var(--surface)] hover:bg-[var(--border)]/30 text-[var(--muted)] border border-[var(--border)] hover:border-[var(--accent)]/40'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-300' : 'text-[var(--muted)]'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[var(--accent-ink)]' : 'text-[var(--muted)]'}`} />
                   <span>{cat.name}</span>
                 </button>
               )
@@ -345,8 +346,8 @@ export default function App() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-4 border-b border-[var(--border)] gap-3 sm:gap-4">
           <div>
-            <span className="text-[11px] sm:text-xs font-extrabold text-[var(--green-text)] tracking-wider uppercase">Saatavilla Oulussa</span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading mt-0.5 sm:mt-1">
+            <span className="text-[11px] sm:text-xs font-extrabold text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2.5 py-1 rounded-full border border-[var(--accent)]/20 tracking-wider uppercase">Saatavilla Oulussa</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading mt-1 sm:mt-1.5">
               Suosituimmat retkivarusteet
             </h2>
           </div>
@@ -358,7 +359,7 @@ export default function App() {
             {hasActiveFilters && (
               <button 
                 onClick={resetFilters}
-                className="inline-flex items-center gap-1 text-xs font-bold text-[var(--green-text)] hover:underline transition"
+                className="inline-flex items-center gap-1 text-xs font-bold text-[var(--on-accent-quiet)] hover:underline transition"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Nollaa</span>
@@ -385,23 +386,28 @@ export default function App() {
             {listings.map((gear) => (
               <div 
                 key={gear.id}
-                className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 hover:border-emerald-500/40 transition-all duration-300 flex flex-col"
+                className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 hover:border-[var(--accent)]/40 transition-all duration-300 flex flex-col"
               >
                 {/* Image Container */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-[var(--border)]/30 rounded-t-2xl">
+                <div className="card-image-container aspect-[4/3] rounded-t-2xl bg-[var(--border)]/30">
                   <img 
                     src={gear.imageUrl} 
                     alt={gear.title}
                     loading="lazy"
+                    decoding="async"
                     width={400}
                     height={300}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null
+                      e.currentTarget.src = '/img/gear/placeholder.svg'
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 aspect-[4/3]"
                   />
                   
                   {/* Category Tag */}
                   {gear.tag && (
                     <div className="absolute top-2.5 left-2.5 z-10">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-black/65 backdrop-blur-md text-white shadow-xs border border-white/20">
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold scrim-pill shadow-xs">
                         {gear.tag}
                       </span>
                     </div>
@@ -409,9 +415,9 @@ export default function App() {
 
                   {/* Availability Chip */}
                   <div className="absolute top-2.5 right-14 z-10">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide shadow-xs backdrop-blur-md border border-white/20 ${
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide shadow-xs border border-white/20 ${
                       gear.isAvailable 
-                        ? 'bg-[var(--green-text)] text-white' 
+                        ? 'bg-[var(--accent)] text-[var(--accent-ink)]' 
                         : 'bg-amber-700 text-white'
                     }`}>
                       {gear.isAvailable ? 'Vapaa' : 'Varattu'}
@@ -421,7 +427,7 @@ export default function App() {
                   {/* Favorite Toggle Button (44x44px Touch Target) */}
                   <button 
                     onClick={() => toggleFavorite(gear.id)}
-                    className="absolute top-2.5 right-2.5 z-10 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-black/65 backdrop-blur-md hover:bg-black/80 flex items-center justify-center text-white transition active:scale-90 shadow-sm border border-white/20"
+                    className="absolute top-2.5 right-2.5 z-10 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full scrim-pill hover:opacity-90 flex items-center justify-center text-white transition active:scale-90 shadow-sm"
                     aria-label="Lisää suosikkeihin"
                     title={favorites.includes(gear.id) ? 'Poista suosikeista' : 'Lisää suosikkeihin'}
                   >
@@ -429,7 +435,7 @@ export default function App() {
                   </button>
 
                   {/* Location badge (Overlay pill with max-width - NO cutoff) */}
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 max-w-[calc(100%-20px)] truncate inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/65 backdrop-blur-md text-[11px] font-semibold text-white shadow-xs border border-white/20">
+                  <div className="card-location-pill z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold scrim-pill shadow-xs">
                     <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span className="truncate">{gear.location}</span>
                   </div>
@@ -440,7 +446,7 @@ export default function App() {
                   <div>
                     {/* Brand & Rating */}
                     <div className="flex items-center justify-between text-xs text-[var(--muted)] mb-1.5">
-                      <span className="font-bold uppercase tracking-wider text-[10px] text-[var(--green-text)] bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
+                      <span className="font-bold uppercase tracking-wider text-[10px] text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2 py-0.5 rounded border border-[var(--accent)]/20">
                         {gear.brand}
                       </span>
                       <div className="flex items-center gap-1 text-[var(--text)] font-semibold">
@@ -451,7 +457,7 @@ export default function App() {
                     </div>
 
                     {/* Title */}
-                    <h3 className="font-bold text-[var(--text)] text-base leading-snug group-hover:text-[var(--green-text)] transition line-clamp-2 mt-1">
+                    <h3 className="font-bold text-[var(--text)] text-base leading-snug group-hover:text-[var(--accent)] transition line-clamp-2 mt-1">
                       {gear.title}
                     </h3>
 
@@ -471,20 +477,13 @@ export default function App() {
                   <div className="mt-4 pt-3.5 border-t border-[var(--border)] flex items-center justify-between">
                     {/* Owner snippet */}
                     <div className="flex items-center gap-2">
-                      <img 
-                        src={gear.owner.avatar} 
-                        alt={gear.owner.name} 
-                        loading="lazy"
-                        width={28}
-                        height={28}
-                        className="w-7 h-7 rounded-full object-cover ring-1 ring-[var(--border)]"
-                      />
+                      <AvatarInitials name={gear.owner.name} size={28} />
                       <div className="flex flex-col">
                         <span className="text-xs text-[var(--text)] font-medium leading-none">
                           {gear.owner.name}
                         </span>
                         {gear.owner.isSuperOwner && (
-                          <span className="text-[9px] font-extrabold text-[var(--green-text)]">Super-omistaja</span>
+                          <span className="text-[9px] font-extrabold text-[var(--on-accent-quiet)]">Super-omistaja</span>
                         )}
                       </div>
                     </div>
@@ -515,7 +514,7 @@ export default function App() {
             </p>
             <button 
               onClick={resetFilters}
-              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-500/10 text-[var(--green-text)] text-xs font-semibold border border-emerald-500/20 hover:bg-emerald-500/20 transition active:scale-95 min-h-[44px]"
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] text-xs font-semibold border border-[var(--accent)]/20 hover:opacity-90 transition active:scale-95 min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Tyhjennä suodattimet</span>
@@ -530,8 +529,8 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             
             <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                <ShieldCheck className="w-5 h-5 text-[var(--green-text)]" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center shrink-0 border border-[var(--accent)]/20">
+                <ShieldCheck className="w-5 h-5 text-[var(--on-accent-quiet)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Turvallinen vertaisvuokraus</h4>
@@ -542,8 +541,8 @@ export default function App() {
             </div>
 
             <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                <MapPin className="w-5 h-5 text-[var(--green-text)]" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center shrink-0 border border-[var(--accent)]/20">
+                <MapPin className="w-5 h-5 text-[var(--on-accent-quiet)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Helppo nouto Oulusta</h4>
@@ -554,8 +553,8 @@ export default function App() {
             </div>
 
             <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--border)]/20 transition">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-gearspot-800 flex items-center justify-center shrink-0 border border-emerald-500/20">
-                <Sparkles className="w-5 h-5 text-[var(--green-text)]" />
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center shrink-0 border border-[var(--accent)]/20">
+                <Sparkles className="w-5 h-5 text-[var(--on-accent-quiet)]" />
               </div>
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Järkevä & Ekologinen</h4>
@@ -572,7 +571,7 @@ export default function App() {
       {/* 6. MINIMALIST FOOTER */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--muted)] gap-4 border-t border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-gearspot-800 flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-6 h-6 rounded-md bg-[var(--accent)] flex items-center justify-center text-[var(--accent-ink)] text-[10px] font-bold">
             V
           </div>
           <span className="font-semibold text-[var(--text)]">Vuokraajanne</span>

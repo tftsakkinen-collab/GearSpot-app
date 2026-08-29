@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#18181b"/>
+  <circle cx="400" cy="300" r="160" fill="#27272a"/>
+  <!-- Stove graphic -->
+  <polygon points="320,400 480,400 440,280 360,280" fill="#71717a" stroke="#a1a1aa" stroke-width="4"/>
+  <!-- Flame -->
+  <path d="M 380 270 Q 400 200 420 270 Z" fill="#f97316"/>
+  <path d="M 390 270 Q 400 220 410 270 Z" fill="#facc15"/>
+  <rect x="40" y="40" width="220" height="42" rx="21" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.2)"/>
+  <text x="150" y="66" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">Primus OmniLite Ti</text>
+</svg>

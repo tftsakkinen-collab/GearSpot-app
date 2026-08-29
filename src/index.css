@@ -1,33 +1,7 @@
-@import './design-system/tokens.css';
-@import './design-system/glass.css';
+@import './design-system/brand.vuokraajanne.css';
+@import './design-system/base.css';
+@import './design-system/mobile.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--bg);
-    color: var(--text);
-  }
-  
-  h1, h2, h3, .font-heading {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    letter-spacing: -0.02em;
-  }
-}
-
-/* Scroll reveal defaults & motion safety */
-[data-reveal] {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  [data-reveal]:not([data-revealed="true"]) {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-}
