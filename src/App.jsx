@@ -65,6 +65,29 @@ export default function App() {
     } catch (e) {}
   }
 
+  // Intersection Observer elementtien reveal-ilmaantumiselle
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute('data-revealed', 'true')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    const elements = document.querySelectorAll('[data-reveal]')
+    elements.forEach((el) => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [listings])
+
   // Dynaaminen tietokanta-/API-haku
   useEffect(() => {
     let isMounted = true
@@ -219,7 +242,7 @@ export default function App() {
       </header>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-10 pb-14 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28 overflow-hidden">
+      <section data-reveal className="relative pt-10 pb-14 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28 overflow-hidden">
         {/* Background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[500px] md:w-[700px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-emerald-500/20 via-emerald-500/10 to-transparent blur-3xl rounded-full -z-10 pointer-events-none" />
 
@@ -318,7 +341,7 @@ export default function App() {
       </section>
 
       {/* 4. COMPACT PRODUCT GRID SECTION */}
-      <section id="gear" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full">
+      <section id="gear" data-reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-4 border-b border-[var(--border)] gap-3 sm:gap-4">
           <div>
@@ -502,7 +525,7 @@ export default function App() {
       </section>
 
       {/* 5. TRUST & VALUE PROPOSITION */}
-      <section id="safety" className="bg-[var(--surface)] border-y border-[var(--border)] py-12 sm:py-16 my-6">
+      <section id="safety" data-reveal className="bg-[var(--surface)] border-y border-[var(--border)] py-12 sm:py-16 my-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             
