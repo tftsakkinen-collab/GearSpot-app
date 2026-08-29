@@ -1,5 +1,5 @@
 /**
- * GearSpot - Varustedata ja tietokantarajapinta
+ * Vuokraajanne - Varustedata ja tietokantarajapinta
  * Tukee sekä dynaamista API/tietokantahakua että lokaalia varustedataa.
  */
 

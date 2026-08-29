@@ -1,4 +1,4 @@
-// GearSpot API and Database Service Layer
+// Vuokraajanne API and Database Service Layer
 // ALL keys and endpoints are strictly loaded from environment variables (.env.local)
 // No secrets or credentials are hardcoded.
 

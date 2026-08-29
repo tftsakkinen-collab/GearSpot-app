@@ -141,14 +141,14 @@ export default function App() {
       {/* 1. MINIMALIST NAVIGATION */}
       <header className="sticky top-0 z-50 glass border-b border-[var(--border)] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          {/* Brand Logo - UNCHANGED */}
+          {/* Brand Logo */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gearspot-800 flex items-center justify-center text-white shadow-sm ring-1 ring-gearspot-900/10 shrink-0">
               <Waves className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-300 stroke-[2.2]" />
             </div>
             <div className="flex items-center">
               <span className="text-lg sm:text-xl font-bold tracking-tight text-[var(--text)] font-heading">
-                Gear<span className="text-emerald-600">Spot</span>
+                Vuokraaj<span className="text-emerald-600">anne</span>
               </span>
               <span className="ml-2 text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
                 Oulu
@@ -573,9 +573,9 @@ export default function App() {
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--muted)] gap-4 border-t border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-gearspot-800 flex items-center justify-center text-white text-[10px] font-bold">
-            G
+            V
           </div>
-          <span className="font-semibold text-[var(--text)]">GearSpot</span>
+          <span className="font-semibold text-[var(--text)]">Vuokraajanne</span>
           <span>— Tiedottajanne Oy, Oulu</span>
         </div>
         <div className="flex items-center gap-6">
