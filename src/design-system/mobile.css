@@ -1,29 +1,50 @@
-/* Mobile Accessibility & Layout Styles */
-.touch-target {
+:root {
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.4rem);
+  --step-2: clamp(1.45rem, 1.25rem + 1vw, 1.9rem);
+  --step-3: clamp(1.8rem, 1.45rem + 1.8vw, 2.6rem);
+  --step-4: clamp(2.2rem, 1.6rem + 3vw, 3.5rem);
+  --container: 72rem;
+  --gutter: clamp(1rem, 5vw, 2.5rem);
+  --section-y: clamp(2.5rem, 8vw, 5rem);
+}
+
+body {
+  font-size: var(--step-0);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: clip;
+}
+
+h1 { font-size: var(--step-4); font-family: var(--font-heading), system-ui, sans-serif; }
+h2 { font-size: var(--step-3); font-family: var(--font-heading), system-ui, sans-serif; }
+h3 { font-size: var(--step-2); font-family: var(--font-heading), system-ui, sans-serif; }
+h4 { font-size: var(--step-1); font-family: var(--font-heading), system-ui, sans-serif; }
+
+section, .section {
+  padding-block: var(--section-y);
+  position: relative;
+  overflow-x: clip;
+}
+
+a, button, [role="button"], input, select, textarea, summary {
   min-height: 44px;
+}
+
+button, [role="button"], .icon-btn {
   min-width: 44px;
 }
 
-.card-image-container {
-  position: relative;
-  overflow: hidden;
+nav a, footer a {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 0.6rem;
 }
 
-.card-location-pill {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  max-width: calc(100% - 16px);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+html, body {
+  overflow-x: clip;
+  max-width: 100vw;
 }
 
-.scrim-pill {
-  background: color-mix(in srgb, black 55%, transparent);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+[class*="blob"], [class*="glow"] {
+  pointer-events: none;
 }

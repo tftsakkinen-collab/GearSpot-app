@@ -1,0 +1,28 @@
+:root {
+  --accent: oklch(0.86 0.09 220);
+  --accent-ink: oklch(16% 0.03 240);
+  --accent-quiet: oklch(28% 0.05 235);
+  --on-accent-quiet: oklch(0.86 0.09 220);
+  --primary: var(--accent);
+  --primary-ink: var(--accent-ink);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --accent: oklch(0.86 0.09 220);
+    --accent-ink: oklch(16% 0.03 240);
+    --accent-quiet: oklch(28% 0.05 235);
+    --on-accent-quiet: oklch(0.86 0.09 220);
+    --primary: var(--accent);
+    --primary-ink: var(--accent-ink);
+  }
+}
+
+:root[data-theme="dark"] {
+  --accent: oklch(0.86 0.09 220);
+  --accent-ink: oklch(16% 0.03 240);
+  --accent-quiet: oklch(28% 0.05 235);
+  --on-accent-quiet: oklch(0.86 0.09 220);
+  --primary: var(--accent);
+  --primary-ink: var(--accent-ink);
+}
