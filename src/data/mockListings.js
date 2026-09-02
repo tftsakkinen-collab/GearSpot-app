@@ -1,7 +1,7 @@
 /**
  * Vuokraajanne - Varustedata ja tietokantarajapinta
  * Tukee sekä dynaamista API/tietokantahakua että lokaalia varustedataa.
- * Kaikki tuotekuvat ovat lokaaleja SVG/WebP -resursseja (0 ulkoista kuvariippuvuutta).
+ * Kaikki tuotekuvat ovat lokaaleja versioituja SVG-resursseja (?v=1).
  */
 
 export const MOCK_LISTINGS = [
@@ -21,7 +21,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 32,
     isAvailable: true,
     tag: "Suosikki",
-    imageUrl: "/img/gear/sup-saimaa-sun.svg",
+    imageUrl: "/img/gear/sup-saimaa-sun.svg?v=1",
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Alumiinimela, pumppu & karkuremmi",
@@ -52,7 +52,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 19,
     isAvailable: true,
     tag: "Premium",
-    imageUrl: "/img/gear/sup-red-paddle.svg",
+    imageUrl: "/img/gear/sup-red-paddle.svg?v=1",
     specs: [
       "Kantavuus: 120 kg",
       "Varusteet: Hiilikuitumela, Titan 2 -pumppu & karkuremmi",
@@ -83,7 +83,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 24,
     isAvailable: true,
     tag: "Helppo & Vakaa",
-    imageUrl: "/img/gear/sup-aqua-marina.svg",
+    imageUrl: "/img/gear/sup-aqua-marina.svg?v=1",
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Säädettävä mela, kaksitoimipumppu & karkuremmi",
@@ -114,7 +114,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 18,
     isAvailable: true,
     tag: "Retkimalli",
-    imageUrl: "/img/gear/sup-saimaa-tourer.svg",
+    imageUrl: "/img/gear/sup-saimaa-tourer.svg?v=1",
     specs: [
       "Kantavuus: 160 kg",
       "Varusteet: Lasikuitumela, korkeapainepumppu & karkuremmi",
@@ -145,7 +145,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 34,
     isAvailable: true,
     tag: "Ultrakevyt",
-    imageUrl: "/img/gear/retkikeitin-primus.svg",
+    imageUrl: "/img/gear/retkikeitin-primus.svg?v=1",
     specs: [
       "Monipolttoainevalmius",
       "Paino: 230 g (ilman pumppua)",
@@ -176,7 +176,7 @@ export const MOCK_LISTINGS = [
     reviewsCount: 17,
     isAvailable: true,
     tag: "Supernopea",
-    imageUrl: "/img/gear/retkikeitin-jetboil.svg",
+    imageUrl: "/img/gear/retkikeitin-jetboil.svg?v=1",
     specs: [
       "1.0L FluxRing-kattila",
       "Keittoaika: 100s / 0.5L",

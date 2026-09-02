@@ -10,21 +10,23 @@ import {
   Star,
   Sparkles,
   ArrowRight,
-  SlidersHorizontal,
-  ChevronRight,
   PlusCircle,
   Menu,
   X,
   Heart,
   CheckCircle2,
-  Package,
   RotateCcw,
   Sun,
-  Moon
+  Moon,
+  Mail,
+  Send,
+  Lock,
+  FileText
 } from 'lucide-react'
 import { fetchListings } from './services/api'
 import { MOCK_LISTINGS } from './data/mockListings'
 import AvatarInitials from './components/AvatarInitials'
+import { sanitizeInput, validateHoneypot, isValidEmail } from './utils/security'
 
 const CATEGORIES = [
   { id: 'all', name: 'Kaikki varusteet', icon: Compass },
@@ -56,6 +58,25 @@ export default function App() {
       return 'light'
     }
   })
+
+  // Booking Modal State
+  const [bookingItem, setBookingItem] = useState(null)
+  const [bookingDays, setBookingDays] = useState(2)
+  const [renterName, setRenterName] = useState('')
+  const [renterEmail, setRenterEmail] = useState('')
+  const [renterPhone, setRenterPhone] = useState('')
+  const [bookingHoneypot, setBookingHoneypot] = useState('')
+  const [bookingSubmitted, setBookingSubmitted] = useState(false)
+  const [bookingError, setBookingError] = useState('')
+
+  // Newsletter State
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterHoneypot, setNewsletterHoneypot] = useState('')
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false)
+  const [newsletterError, setNewsletterError] = useState('')
+
+  // Legal Modal State
+  const [activeLegalModal, setActiveLegalModal] = useState(null)
 
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark'
@@ -135,6 +156,62 @@ export default function App() {
     setSelectedLocation('Koko Oulu')
   }
 
+  const handleOpenBooking = (item) => {
+    setBookingItem(item)
+    setBookingDays(2)
+    setRenterName('')
+    setRenterEmail('')
+    setRenterPhone('')
+    setBookingHoneypot('')
+    setBookingSubmitted(false)
+    setBookingError('')
+  }
+
+  const handleBookingSubmit = (e) => {
+    e.preventDefault()
+    setBookingError('')
+
+    if (!validateHoneypot(bookingHoneypot)) {
+      setBookingError('Epäilyttävä automaatiolähetys estetysti.')
+      return
+    }
+
+    const cleanName = sanitizeInput(renterName)
+    const cleanEmail = sanitizeInput(renterEmail)
+    const cleanPhone = sanitizeInput(renterPhone)
+
+    if (!cleanName || cleanName.length < 2) {
+      setBookingError('Syötä voimassa oleva nimi.')
+      return
+    }
+
+    if (!isValidEmail(cleanEmail)) {
+      setBookingError('Syötä toimiva sähköpostiosoite.')
+      return
+    }
+
+    setBookingSubmitted(true)
+  }
+
+  const handleNewsletterSubmit = (e) => {
+    e.preventDefault()
+    setNewsletterError('')
+
+    if (!validateHoneypot(newsletterHoneypot)) {
+      setNewsletterError('Epäilyttävä automaatiolähetys estetysti.')
+      return
+    }
+
+    const cleanEmail = sanitizeInput(newsletterEmail)
+    if (!isValidEmail(cleanEmail)) {
+      setNewsletterError('Syötä toimiva sähköpostiosoite.')
+      return
+    }
+
+    setNewsletterSubmitted(true)
+    setNewsletterEmail('')
+  }
+
   const hasActiveFilters = searchQuery !== '' || selectedCategory !== 'all' || selectedLocation !== 'Koko Oulu'
 
   return (
@@ -161,7 +238,8 @@ export default function App() {
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-[var(--muted)]">
             <a href="#gear" className="text-[var(--text)] hover:text-[var(--accent)] transition">Selaa varusteita</a>
             <a href="#how-it-works" className="hover:text-[var(--text)] transition">Miten se toimii</a>
-            <a href="#safety" className="hover:text-[var(--text)] transition">Turvallisuus & Vakuutus</a>
+            <a href="#newsletter" className="hover:text-[var(--text)] transition">Kiertokirje</a>
+            <a href="#safety" className="hover:text-[var(--text)] transition">Turvallisuus &amp; Vakuutus</a>
           </nav>
 
           {/* Action CTAs & Theme Toggle */}
@@ -176,10 +254,16 @@ export default function App() {
               {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />}
             </button>
 
-            <button className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40 min-h-[44px] inline-flex items-center">
-              Kirjaudu
+            <button 
+              onClick={() => setActiveLegalModal('terms')}
+              className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40 min-h-[44px] inline-flex items-center"
+            >
+              Käyttöehdot
             </button>
-            <button className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 transition shadow-sm hover:shadow active:scale-[0.98] min-h-[44px]">
+            <button 
+              onClick={() => handleOpenBooking(listings[0])}
+              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 transition shadow-sm hover:shadow active:scale-[0.98] min-h-[44px]"
+            >
               <PlusCircle className="w-4 h-4 text-[var(--accent-ink)]" />
               <span>Vuokraa oma varusteesi</span>
             </button>
@@ -211,30 +295,36 @@ export default function App() {
             <a 
               href="#gear" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30"
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30 min-h-[44px] flex items-center"
             >
               Selaa varusteita
             </a>
             <a 
-              href="#how-it-works" 
+              href="#newsletter" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30"
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30 min-h-[44px] flex items-center"
             >
-              Miten se toimii
+              Kiertokirje
             </a>
             <a 
               href="#safety" 
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30"
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30 min-h-[44px] flex items-center"
             >
-              Turvallisuus & Vakuutus
+              Turvallisuus &amp; Vakuutus
             </a>
             <div className="pt-3 border-t border-[var(--border)] flex flex-col gap-2.5">
-              <button className="w-full text-center py-3 text-xs font-semibold rounded-xl bg-[var(--border)]/50 text-[var(--text)] hover:bg-[var(--border)] transition">
-                Kirjaudu sisään
+              <button 
+                onClick={() => { setMobileMenuOpen(false); setActiveLegalModal('privacy'); }}
+                className="w-full text-center py-3 text-xs font-semibold rounded-xl bg-[var(--border)]/50 text-[var(--text)] hover:bg-[var(--border)] transition min-h-[44px]"
+              >
+                Tietosuoja &amp; GDPR
               </button>
-              <button className="w-full inline-flex items-center justify-center gap-2 text-center py-3 text-xs font-semibold rounded-xl bg-gearspot-800 text-white shadow-sm">
-                <PlusCircle className="w-4 h-4 text-emerald-300" />
+              <button 
+                onClick={() => { setMobileMenuOpen(false); handleOpenBooking(listings[0]); }}
+                className="w-full inline-flex items-center justify-center gap-2 text-center py-3 text-xs font-semibold rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] shadow-sm min-h-[44px]"
+              >
+                <PlusCircle className="w-4 h-4 text-[var(--accent-ink)]" />
                 <span>Vuokraa oma varusteesi</span>
               </button>
             </div>
@@ -251,7 +341,7 @@ export default function App() {
           {/* Micro Tag */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-quiet)] border border-[var(--accent)]/20 text-[var(--on-accent-quiet)] text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
             <Sparkles className="w-3.5 h-3.5 text-[var(--on-accent-quiet)] shrink-0" />
-            <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden vuokraus Oulussa</span>
+            <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden lyhytvuokraus Oulussa</span>
           </div>
 
           {/* Main Title */}
@@ -386,10 +476,10 @@ export default function App() {
             {listings.map((gear) => (
               <div 
                 key={gear.id}
-                className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 hover:border-[var(--accent)]/40 transition-all duration-300 flex flex-col"
+                className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 hover:border-[var(--accent)]/40 transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Image Container */}
-                <div className="card-image-container aspect-[4/3] rounded-t-2xl bg-[var(--border)]/30">
+                <div className="card-image-container aspect-[4/3] rounded-t-2xl bg-[var(--border)]/30 relative">
                   <img 
                     src={gear.imageUrl} 
                     alt={gear.title}
@@ -399,7 +489,7 @@ export default function App() {
                     height={300}
                     onError={(e) => {
                       e.currentTarget.onerror = null
-                      e.currentTarget.src = '/img/gear/placeholder.svg'
+                      e.currentTarget.src = '/img/gear/placeholder.svg?v=1'
                     }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 aspect-[4/3]"
                   />
@@ -473,32 +563,43 @@ export default function App() {
                     )}
                   </div>
 
-                  {/* Owner & Price Footer */}
-                  <div className="mt-4 pt-3.5 border-t border-[var(--border)] flex items-center justify-between">
-                    {/* Owner snippet */}
-                    <div className="flex items-center gap-2">
-                      <AvatarInitials name={gear.owner.name} size={28} />
-                      <div className="flex flex-col">
-                        <span className="text-xs text-[var(--text)] font-medium leading-none">
-                          {gear.owner.name}
-                        </span>
-                        {gear.owner.isSuperOwner && (
-                          <span className="text-[9px] font-extrabold text-[var(--on-accent-quiet)]">Super-omistaja</span>
+                  {/* Owner & Price & Action CTA */}
+                  <div className="mt-4 pt-3.5 border-t border-[var(--border)] space-y-3">
+                    <div className="flex items-center justify-between">
+                      {/* Owner snippet */}
+                      <div className="flex items-center gap-2">
+                        <AvatarInitials name={gear.owner.name} size={28} />
+                        <div className="flex flex-col">
+                          <span className="text-xs text-[var(--text)] font-medium leading-none">
+                            {gear.owner.name}
+                          </span>
+                          {gear.owner.isSuperOwner && (
+                            <span className="text-[9px] font-extrabold text-[var(--on-accent-quiet)]">Super-omistaja</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Price */}
+                      <div className="text-right">
+                        <div className="text-base sm:text-lg font-extrabold text-[var(--text)] tabular-nums">
+                          {gear.pricePerDay} € <span className="text-[11px] font-normal text-[var(--muted)]">/ vrk</span>
+                        </div>
+                        {gear.pricePerWeekend && (
+                          <div className="text-[10px] text-[var(--muted)] font-medium tabular-nums">
+                            {gear.pricePerWeekend} € / vkl
+                          </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Price */}
-                    <div className="text-right">
-                      <div className="text-base sm:text-lg font-extrabold text-[var(--text)] tabular-nums">
-                        {gear.pricePerDay} € <span className="text-[11px] font-normal text-[var(--muted)]">/ vrk</span>
-                      </div>
-                      {gear.pricePerWeekend && (
-                        <div className="text-[10px] text-[var(--muted)] font-medium tabular-nums">
-                          {gear.pricePerWeekend} € / vkl
-                        </div>
-                      )}
-                    </div>
+                    {/* Conversion CTA */}
+                    <button 
+                      onClick={() => handleOpenBooking(gear)}
+                      className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 font-bold text-xs transition shadow-sm active:scale-[0.98]"
+                    >
+                      <span>Vuokraa tästä</span>
+                      <ArrowRight className="w-4 h-4 text-[var(--accent-ink)]" />
+                    </button>
                   </div>
 
                 </div>
@@ -523,7 +624,67 @@ export default function App() {
         )}
       </section>
 
-      {/* 5. TRUST & VALUE PROPOSITION */}
+      {/* 5. KIERTOKIRJE & NEWSLETTER SECTION */}
+      <section id="newsletter" data-reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 my-4">
+        <div className="glass rounded-3xl p-6 sm:p-10 border border-[var(--accent)]/30 relative overflow-hidden bg-gradient-to-r from-[var(--surface)] via-[var(--surface-2)] to-[var(--surface)]">
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] text-xs font-semibold border border-[var(--accent)]/20">
+              <Mail className="w-3.5 h-3.5 text-[var(--on-accent-quiet)]" />
+              <span>Kiertokirje &amp; Sähköpostitilaus</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading leading-tight">
+              Liity Vuokraajanne Oulu -kiertokirjeen tilaajaksi
+            </h3>
+            <p className="text-xs sm:text-sm text-[var(--muted)] leading-relaxed">
+              Saat säännöllisesti vinkit Oulun parhaista melonta- ja retkikohteista, kauden uudet SUP-laitteet sekä <strong>-10 % alennuskoodin</strong> ensimmäiseen vuokraukseesi. Ei roskapostia, voit perua milloin vain.
+            </p>
+
+            {newsletterSubmitted ? (
+              <div className="p-4 rounded-2xl bg-[var(--accent-quiet)] border border-[var(--accent)]/30 text-[var(--on-accent-quiet)] text-xs font-bold inline-flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-5 h-5 text-[var(--on-accent-quiet)]" />
+                <span>Kiitos! Kiertokirjeen tilaus vahvistettu. Alennuskoodisi on lähetetty sähköpostiisi.</span>
+              </div>
+            ) : (
+              <form onSubmit={handleNewsletterSubmit} className="mt-4 flex flex-col sm:flex-row gap-3 items-stretch">
+                {/* Honey-pot bot prevention */}
+                <input 
+                  type="text" 
+                  name="website_hp" 
+                  value={newsletterHoneypot} 
+                  onChange={(e) => setNewsletterHoneypot(e.target.value)} 
+                  className="hidden" 
+                  tabIndex={-1} 
+                  autoComplete="off" 
+                />
+
+                <div className="flex-1 relative">
+                  <input
+                    type="email"
+                    placeholder="Kirjoita sähköpostiosoitteesi..."
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    required
+                    className="w-full min-h-[44px] px-4 py-3 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text)] placeholder-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="min-h-[44px] px-6 py-3 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-xs hover:opacity-90 transition inline-flex items-center justify-center gap-2 shrink-0 active:scale-95 shadow-sm"
+                >
+                  <Send className="w-4 h-4 text-[var(--accent-ink)]" />
+                  <span>Tilaa kiertokirje</span>
+                </button>
+              </form>
+            )}
+
+            {newsletterError && (
+              <p className="text-xs text-rose-500 font-semibold mt-1">{newsletterError}</p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. TRUST & VALUE PROPOSITION */}
       <section id="safety" data-reveal className="bg-[var(--surface)] border-y border-[var(--border)] py-12 sm:py-16 my-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
@@ -557,7 +718,7 @@ export default function App() {
                 <Sparkles className="w-5 h-5 text-[var(--on-accent-quiet)]" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-[var(--text)]">Järkevä & Ekologinen</h4>
+                <h4 className="font-bold text-sm text-[var(--text)]">Järkevä &amp; Ekologinen</h4>
                 <p className="text-xs text-[var(--muted)] mt-1 leading-relaxed">
                   Käytä huippuvarusteita vain silloin kun tarvitset ja säästä satoja euroja hankintahinnoissa.
                 </p>
@@ -568,7 +729,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 6. MINIMALIST FOOTER */}
+      {/* 7. MINIMALIST FOOTER */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--muted)] gap-4 border-t border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-[var(--accent)] flex items-center justify-center text-[var(--accent-ink)] text-[10px] font-bold">
@@ -578,11 +739,208 @@ export default function App() {
           <span>— Tiedottajanne Oy, Oulu</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
-          <a href="#" className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30">Käyttöehdot</a>
-          <a href="#" className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30">Tietosuoja</a>
-          <a href="#" className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30">Yhteystiedot</a>
+          <button 
+            onClick={() => setActiveLegalModal('terms')} 
+            className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30 text-xs text-[var(--muted)]"
+          >
+            Käyttöehdot
+          </button>
+          <button 
+            onClick={() => setActiveLegalModal('privacy')} 
+            className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30 text-xs text-[var(--muted)]"
+          >
+            Tietosuoja &amp; GDPR
+          </button>
+          <a 
+            href="mailto:info@tiedottajanne.fi" 
+            className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30"
+          >
+            Yhteystiedot
+          </a>
         </div>
       </footer>
+
+      {/* RENTAL BOOKING MODAL */}
+      {bookingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="glass rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-[var(--border)] space-y-5 bg-[var(--surface)] shadow-2xl relative">
+            <button
+              onClick={() => setBookingItem(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-[var(--border)]/40 text-[var(--muted)] hover:text-[var(--text)] transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Sulje"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
+                Vuokrauspyyntö
+              </span>
+              <h3 className="text-xl font-bold text-[var(--text)] font-heading leading-tight pt-1">
+                {bookingItem.title}
+              </h3>
+              <p className="text-xs text-[var(--muted)]">Noutopaikka: {bookingItem.location}</p>
+            </div>
+
+            {bookingSubmitted ? (
+              <div className="py-6 text-center space-y-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6 text-[var(--on-accent-quiet)]" />
+                </div>
+                <h4 className="text-lg font-bold text-[var(--text)]">Vuokrauspyyntö lähetetty!</h4>
+                <p className="text-xs text-[var(--muted)] leading-relaxed max-w-xs mx-auto">
+                  Omistaja ({bookingItem.owner.name}) on saanut ilmoituksen pyynnöstäsi. Saat vahvistusviestin ja maksulinkin sähköpostiisi pikaisesti.
+                </p>
+                <button
+                  onClick={() => setBookingItem(null)}
+                  className="mt-2 min-h-[44px] px-6 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-xs hover:opacity-90 transition"
+                >
+                  Valmis
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleBookingSubmit} className="space-y-4">
+                {/* Honey-pot bot field */}
+                <input 
+                  type="text" 
+                  name="website_hp" 
+                  value={bookingHoneypot} 
+                  onChange={(e) => setBookingHoneypot(e.target.value)} 
+                  className="hidden" 
+                  tabIndex={-1} 
+                  autoComplete="off" 
+                />
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-[var(--text)] block">Vuokrausaika (päiviä)</label>
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="7" 
+                      value={bookingDays} 
+                      onChange={(e) => setBookingDays(Number(e.target.value))} 
+                      className="w-full accent-[var(--accent)]"
+                    />
+                    <span className="text-xs font-bold text-[var(--text)] min-w-[60px] text-right">{bookingDays} vrk</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex justify-between items-center text-xs">
+                  <span className="text-[var(--muted)]">Laskettu vuokraushinta:</span>
+                  <span className="text-base font-extrabold text-[var(--text)]">
+                    {bookingItem.pricePerDay * bookingDays} €
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text)] block mb-1">Nimesi</label>
+                    <input
+                      type="text"
+                      placeholder="Matti Meikäläinen"
+                      value={renterName}
+                      onChange={(e) => setRenterName(e.target.value)}
+                      required
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text)] block mb-1">Sähköpostiosoitteesi</label>
+                    <input
+                      type="email"
+                      placeholder="matti@esimerkki.fi"
+                      value={renterEmail}
+                      onChange={(e) => setRenterEmail(e.target.value)}
+                      required
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text)] block mb-1">Puhelinnumero (noutoa varten)</label>
+                    <input
+                      type="tel"
+                      placeholder="040 123 4567"
+                      value={renterPhone}
+                      onChange={(e) => setRenterPhone(e.target.value)}
+                      required
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-[var(--surface)] border border-[var(--border)] text-xs text-[var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+                    />
+                  </div>
+                </div>
+
+                {bookingError && (
+                  <p className="text-xs text-rose-500 font-semibold">{bookingError}</p>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full min-h-[48px] rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-xs hover:opacity-90 transition shadow-md inline-flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <Send className="w-4 h-4 text-[var(--accent-ink)]" />
+                  <span>Lähetä vuokrauspyyntö ({bookingItem.pricePerDay * bookingDays} €)</span>
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* LEGAL & PRIVACY MODAL */}
+      {activeLegalModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="glass rounded-3xl p-6 sm:p-8 max-w-2xl w-full border border-[var(--border)] space-y-4 bg-[var(--surface)] shadow-2xl relative max-h-[85vh] overflow-y-auto">
+            <button
+              onClick={() => setActiveLegalModal(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-[var(--border)]/40 text-[var(--muted)] hover:text-[var(--text)] transition min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Sulje"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {activeLegalModal === 'privacy' ? (
+              <div className="space-y-3 text-xs text-[var(--muted)] leading-relaxed">
+                <div className="flex items-center gap-2 text-[var(--text)] font-heading font-bold text-lg">
+                  <Lock className="w-5 h-5 text-[var(--accent)]" />
+                  <h3>Tietosuojaseloste &amp; GDPR</h3>
+                </div>
+                <p>
+                  Tiedottajanne Oy (Vuokraajanne.com) noudattaa EU:n yleistä tietosuoja-asetusta (GDPR). Keräämme vain vuokraustapahtuman ja noudon kannalta välttämättömät tiedot (nimi, sähköposti, puhelinnumero).
+                </p>
+                <h4 className="font-bold text-[var(--text)] pt-2 text-xs uppercase tracking-wider">Tietojen käyttö &amp; Suojaus</h4>
+                <p>
+                  Kaikki tietoliikenne on suojattu SSL/TLS-salauksella. Käyttäjätietoja ei luovuteta kolmansille osapuolille markkinointitarkoituksiin.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3 text-xs text-[var(--muted)] leading-relaxed">
+                <div className="flex items-center gap-2 text-[var(--text)] font-heading font-bold text-lg">
+                  <FileText className="w-5 h-5 text-[var(--accent)]" />
+                  <h3>Käyttöehdot</h3>
+                </div>
+                <p>
+                  Vuokraajanne.com toimii vertaisvuokrausalustana. Vuokraaja vastaa varusteen huolellisesta käsittelystä vuokrausaikana ja palautuksesta sovitussa kunnossa.
+                </p>
+                <h4 className="font-bold text-[var(--text)] pt-2 text-xs uppercase tracking-wider">Peruutusehdot</h4>
+                <p>
+                  Ilmainen peruutus 24h ennen vuokrausajankohdan alkua. Peruutukset suoraan omistajalle tai asiakaspalveluumme.
+                </p>
+              </div>
+            )}
+
+            <div className="pt-4 border-t border-[var(--border)] text-right">
+              <button
+                onClick={() => setActiveLegalModal(null)}
+                className="min-h-[44px] px-5 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-xs hover:opacity-90 transition"
+              >
+                Sulje
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
