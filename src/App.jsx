@@ -21,12 +21,16 @@ import {
   Mail,
   Send,
   Lock,
-  FileText
+  FileText,
+  HelpCircle,
+  ChevronDown,
+  Cookie
 } from 'lucide-react'
 import { fetchListings } from './services/api'
 import { MOCK_LISTINGS } from './data/mockListings'
 import AvatarInitials from './components/AvatarInitials'
 import { sanitizeInput, validateHoneypot, isValidEmail } from './utils/security'
+import { trackEvent } from './utils/analytics'
 
 const CATEGORIES = [
   { id: 'all', name: 'Kaikki varusteet', icon: Compass },
@@ -43,6 +47,29 @@ const LOCATIONS = [
   'Kaakkuri'
 ]
 
+const FAQ_ITEMS = [
+  {
+    q: 'Miten nouto ja palautus toimivat Oulussa?',
+    a: 'Nouto ja palautus sovitaan joustavasti suoraan varusteen omistajan kanssa. Suurin osa noudoista sijaitsee Keskeisillä alueilla kuten Tuirassa, Nallikarissa, Linnanmaalla ja Keskustassa.'
+  },
+  {
+    q: 'Entä jos varuste rikkoutuu tai vaurioituu vuokrauksen aikana?',
+    a: 'Vuokraajanne-vertaisvuokraus noudattaa selkeitä vastuuehtoja. Tavanomaisesta kulumisesta ei veloiteta, ja mahdolliset vahingot käsitellään turvatakuuehtojemme mukaisesti. Varusteen kunto tarkistetaan luovutuksen yhteydessä.'
+  },
+  {
+    q: 'Miten voin laittaa oman SUP-laudan tai retkikeittimen vuokralle?',
+    a: 'Klikkaa yläpalkin "Vuokraa oma varusteesi" -painiketta. Syötä varusteesi tiedot ja vuokraushinta. Tiedottajanne Oy hoitaa alustan ylläpidon ja näkyvyyden Oulun alueella.'
+  },
+  {
+    q: 'Mitkä ovat peruutusehdot?',
+    a: 'Vuokrauksen voi peruuttaa kuluitta 24 tuntia ennen sovitun vuokrausajankohdan alkua joko ilmoittamalla omistajalle tai asiakaspalveluumme.'
+  },
+  {
+    q: 'Kuuluvatko mela, pumppu ja karkuremmi SUP-laudan hintaan?',
+    a: 'Kyllä! Kaikkiin Vuokraajanne.com-alustalla oleviin SUP-laitoihin kuuluu aina täydellinen valmis varustesetti: säädettävä mela, pumppu, karkuremmi ja kantoreppu.'
+  }
+]
+
 export default function App() {
   const [listings, setListings] = useState(MOCK_LISTINGS)
   const [loading, setLoading] = useState(false)
@@ -56,6 +83,18 @@ export default function App() {
       return document.documentElement.getAttribute('data-theme') || 'light'
     } catch (e) {
       return 'light'
+    }
+  })
+
+  // FAQ Accordion State
+  const [openFaqIndex, setOpenFaqIndex] = useState(null)
+
+  // Cookie Consent State
+  const [cookieConsent, setCookieConsent] = useState(() => {
+    try {
+      return localStorage.getItem('cookie_consent')
+    } catch (e) {
+      return null
     }
   })
 
@@ -84,6 +123,14 @@ export default function App() {
     try {
       document.documentElement.setAttribute('data-theme', nextTheme)
       localStorage.setItem('theme', nextTheme)
+    } catch (e) {}
+  }
+
+  const handleCookieConsent = (type) => {
+    setCookieConsent(type)
+    try {
+      localStorage.setItem('cookie_consent', type)
+      trackEvent('cookie_consent_updated', { type })
     } catch (e) {}
   }
 
@@ -145,9 +192,11 @@ export default function App() {
   }, [searchQuery, selectedCategory, selectedLocation])
 
   const toggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    )
+    setFavorites(prev => {
+      const next = prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+      trackEvent('toggle_favorite', { gearId: id, isFavorite: next.includes(id) })
+      return next
+    })
   }
 
   const resetFilters = () => {
@@ -165,6 +214,7 @@ export default function App() {
     setBookingHoneypot('')
     setBookingSubmitted(false)
     setBookingError('')
+    trackEvent('open_booking_modal', { gearId: item.id, title: item.title })
   }
 
   const handleBookingSubmit = (e) => {
@@ -191,6 +241,7 @@ export default function App() {
     }
 
     setBookingSubmitted(true)
+    trackEvent('submit_booking', { gearId: bookingItem.id, days: bookingDays })
   }
 
   const handleNewsletterSubmit = (e) => {
@@ -210,6 +261,11 @@ export default function App() {
 
     setNewsletterSubmitted(true)
     setNewsletterEmail('')
+    trackEvent('subscribe_newsletter', { email: cleanEmail })
+  }
+
+  const toggleFaq = (index) => {
+    setOpenFaqIndex(prev => (prev === index ? null : index))
   }
 
   const hasActiveFilters = searchQuery !== '' || selectedCategory !== 'all' || selectedLocation !== 'Koko Oulu'
@@ -220,7 +276,7 @@ export default function App() {
       <header className="sticky top-0 z-50 glass border-b border-[var(--border)] transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Brand Logo */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <a href="/" className="flex items-center gap-2.5 sm:gap-3 text-current no-underline">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[var(--accent)] flex items-center justify-center text-[var(--accent-ink)] shadow-sm shrink-0">
               <Waves className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--accent-ink)] stroke-[2.2]" />
             </div>
@@ -232,19 +288,19 @@ export default function App() {
                 Oulu
               </span>
             </div>
-          </div>
+          </a>
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-[var(--muted)]">
             <a href="#gear" className="text-[var(--text)] hover:text-[var(--accent)] transition">Selaa varusteita</a>
             <a href="#how-it-works" className="hover:text-[var(--text)] transition">Miten se toimii</a>
+            <a href="#faq" className="hover:text-[var(--text)] transition">UKK</a>
             <a href="#newsletter" className="hover:text-[var(--text)] transition">Kiertokirje</a>
             <a href="#safety" className="hover:text-[var(--text)] transition">Turvallisuus &amp; Vakuutus</a>
           </nav>
 
           {/* Action CTAs & Theme Toggle */}
           <div className="hidden sm:flex items-center gap-3">
-            {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
               className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[var(--text)] hover:bg-[var(--border)]/40 transition active:scale-95 border border-[var(--border)]"
@@ -300,6 +356,20 @@ export default function App() {
               Selaa varusteita
             </a>
             <a 
+              href="#how-it-works" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30 min-h-[44px] flex items-center"
+            >
+              Miten se toimii
+            </a>
+            <a 
+              href="#faq" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30 min-h-[44px] flex items-center"
+            >
+              UKK / Kysymykset
+            </a>
+            <a 
               href="#newsletter" 
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 px-3 text-sm font-medium text-[var(--text)] rounded-lg hover:bg-[var(--border)]/30 min-h-[44px] flex items-center"
@@ -334,32 +404,26 @@ export default function App() {
 
       {/* 2. HERO SECTION */}
       <section data-reveal className="relative pt-10 pb-14 sm:pt-16 sm:pb-20 md:pt-24 md:pb-28 overflow-hidden">
-        {/* Background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[500px] md:w-[700px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-emerald-500/20 via-emerald-500/10 to-transparent blur-3xl rounded-full -z-10 pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Micro Tag */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-quiet)] border border-[var(--accent)]/20 text-[var(--on-accent-quiet)] text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
             <Sparkles className="w-3.5 h-3.5 text-[var(--on-accent-quiet)] shrink-0" />
             <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden lyhytvuokraus Oulussa</span>
           </div>
 
-          {/* Main Title */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text)] font-heading leading-[1.15] sm:leading-[1.12]">
             Vuokraa SUP-laudat ja varusteet. <br className="hidden sm:inline" />
             <span className="text-[var(--accent)]">Suoraan paikallisilta oululaisilta.</span>
           </h1>
 
-          {/* Subtitle */}
           <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[var(--muted)] max-w-2xl mx-auto font-normal leading-relaxed">
             Kaikkea ei tarvitse ostaa omaksi varastoon. Nappaa laadukas SUP-lauta tai retkikeitin päiväksi tai viikonlopuksi naapuriltasi Oulussa.
           </p>
 
-          {/* 3. AIRY & MOBILE RESPONSIVE SEARCH BAR COMPONENT */}
+          {/* Search Bar */}
           <div className="mt-8 sm:mt-10 max-w-3xl mx-auto bg-[var(--surface)] p-2 sm:p-2.5 rounded-2xl sm:rounded-full border border-[var(--border)] shadow-lg transition-all focus-within:border-[var(--accent)] focus-within:ring-4 focus-within:ring-[var(--accent)]/10">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              
-              {/* Keyword Search */}
               <div className="flex items-center gap-2.5 w-full sm:flex-1 px-3 sm:px-4 py-1.5 min-h-[44px]">
                 <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted)] shrink-0" />
                 <input
@@ -380,7 +444,6 @@ export default function App() {
                 )}
               </div>
 
-              {/* Location Selector */}
               <div className="flex items-center gap-2 w-full sm:w-auto px-3 sm:px-4 py-1.5 border-t sm:border-t-0 sm:border-l border-[var(--border)] min-h-[44px]">
                 <MapPin className="w-4 h-4 text-[var(--accent)] shrink-0" />
                 <select 
@@ -394,7 +457,6 @@ export default function App() {
                 </select>
               </div>
 
-              {/* Submit CTA */}
               <button 
                 onClick={() => document.getElementById('gear')?.scrollIntoView({ behavior: 'smooth' })}
                 className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-full bg-[var(--accent)] hover:opacity-90 text-[var(--accent-ink)] text-xs font-bold transition shadow-sm active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--accent)]"
@@ -402,7 +464,6 @@ export default function App() {
                 <span>Hae varusteita</span>
                 <ArrowRight className="w-4 h-4 text-[var(--accent-ink)]" />
               </button>
-
             </div>
           </div>
 
@@ -431,9 +492,50 @@ export default function App() {
         </div>
       </section>
 
+      {/* 3. HOW IT WORKS SECTION */}
+      <section id="how-it-works" data-reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 my-4">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+          <span className="text-[11px] sm:text-xs font-extrabold text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-3 py-1 rounded-full border border-[var(--accent)]/20 uppercase tracking-wider">Helppo 3-vaiheinen vuokraus</span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading mt-2">
+            Miten Vuokraajanne.com toimii?
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center mx-auto font-extrabold text-lg border border-[var(--accent)]/20">
+              1
+            </div>
+            <h3 className="font-bold text-base text-[var(--text)]">Etsi &amp; Valitse varuste</h3>
+            <p className="text-xs text-[var(--muted)] leading-relaxed">
+              Selaa Oulun SUP-laitoja ja retkikeittimiä. Valitse haluamasi vuokrausaika päivinä tai viikonloppuna.
+            </p>
+          </div>
+
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center mx-auto font-extrabold text-lg border border-[var(--accent)]/20">
+              2
+            </div>
+            <h3 className="font-bold text-base text-[var(--text)]">Sovi nouto Oulussa</h3>
+            <p className="text-xs text-[var(--muted)] leading-relaxed">
+              Lähetä ilmainen vuokrauspyyntö. Omistaja vahvistaa pyynnön ja sovitte noudon Tuirasta, Nallikarista tai keskustasta.
+            </p>
+          </div>
+
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center mx-auto font-extrabold text-lg border border-[var(--accent)]/20">
+              3
+            </div>
+            <h3 className="font-bold text-base text-[var(--text)]">Nauti &amp; Palauta</h3>
+            <p className="text-xs text-[var(--muted)] leading-relaxed">
+              Nauti vesistä ja luonnosta ilman satojen eurojen laitehankintoja. Palauta varuste sovittuun aikaan siistinä.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* 4. COMPACT PRODUCT GRID SECTION */}
       <section id="gear" data-reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full">
-        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-4 border-b border-[var(--border)] gap-3 sm:gap-4">
           <div>
             <span className="text-[11px] sm:text-xs font-extrabold text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2.5 py-1 rounded-full border border-[var(--accent)]/20 tracking-wider uppercase">Saatavilla Oulussa</span>
@@ -458,7 +560,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Product Cards Grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6].map(n => (
@@ -478,11 +579,10 @@ export default function App() {
                 key={gear.id}
                 className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/5 hover:border-[var(--accent)]/40 transition-all duration-300 flex flex-col justify-between"
               >
-                {/* Image Container */}
                 <div className="card-image-container aspect-[4/3] rounded-t-2xl bg-[var(--border)]/30 relative">
                   <img 
                     src={gear.imageUrl} 
-                    alt={gear.title}
+                    alt={`${gear.brand} ${gear.model} - ${gear.title}`}
                     loading="lazy"
                     decoding="async"
                     width={400}
@@ -494,7 +594,6 @@ export default function App() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 aspect-[4/3]"
                   />
                   
-                  {/* Category Tag */}
                   {gear.tag && (
                     <div className="absolute top-2.5 left-2.5 z-10">
                       <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold scrim-pill shadow-xs">
@@ -503,7 +602,6 @@ export default function App() {
                     </div>
                   )}
 
-                  {/* Availability Chip */}
                   <div className="absolute top-2.5 right-14 z-10">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide shadow-xs border border-white/20 ${
                       gear.isAvailable 
@@ -514,7 +612,6 @@ export default function App() {
                     </span>
                   </div>
 
-                  {/* Favorite Toggle Button (44x44px Touch Target) */}
                   <button 
                     onClick={() => toggleFavorite(gear.id)}
                     className="absolute top-2.5 right-2.5 z-10 w-11 h-11 min-w-[44px] min-h-[44px] rounded-full scrim-pill hover:opacity-90 flex items-center justify-center text-white transition active:scale-90 shadow-sm"
@@ -524,17 +621,14 @@ export default function App() {
                     <Heart className={`w-4.5 h-4.5 transition-colors ${favorites.includes(gear.id) ? 'fill-rose-500 text-rose-500' : 'text-white/90'}`} />
                   </button>
 
-                  {/* Location badge (Overlay pill with max-width - NO cutoff) */}
                   <div className="card-location-pill z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold scrim-pill shadow-xs">
                     <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span className="truncate">{gear.location}</span>
                   </div>
                 </div>
 
-                {/* Card Content */}
                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
                   <div>
-                    {/* Brand & Rating */}
                     <div className="flex items-center justify-between text-xs text-[var(--muted)] mb-1.5">
                       <span className="font-bold uppercase tracking-wider text-[10px] text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2 py-0.5 rounded border border-[var(--accent)]/20">
                         {gear.brand}
@@ -546,12 +640,10 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Title */}
                     <h3 className="font-bold text-[var(--text)] text-base leading-snug group-hover:text-[var(--accent)] transition line-clamp-2 mt-1">
                       {gear.title}
                     </h3>
 
-                    {/* Specs / Highlights */}
                     {gear.specs && (
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {gear.specs.slice(0, 3).map((spec, idx) => (
@@ -563,10 +655,8 @@ export default function App() {
                     )}
                   </div>
 
-                  {/* Owner & Price & Action CTA */}
                   <div className="mt-4 pt-3.5 border-t border-[var(--border)] space-y-3">
                     <div className="flex items-center justify-between">
-                      {/* Owner snippet */}
                       <div className="flex items-center gap-2">
                         <AvatarInitials name={gear.owner.name} size={28} />
                         <div className="flex flex-col">
@@ -579,7 +669,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Price */}
                       <div className="text-right">
                         <div className="text-base sm:text-lg font-extrabold text-[var(--text)] tabular-nums">
                           {gear.pricePerDay} € <span className="text-[11px] font-normal text-[var(--muted)]">/ vrk</span>
@@ -592,7 +681,6 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Conversion CTA */}
                     <button 
                       onClick={() => handleOpenBooking(gear)}
                       className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 font-bold text-xs transition shadow-sm active:scale-[0.98]"
@@ -624,7 +712,47 @@ export default function App() {
         )}
       </section>
 
-      {/* 5. KIERTOKIRJE & NEWSLETTER SECTION */}
+      {/* 5. FAQ SECTION */}
+      <section id="faq" data-reveal className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 my-4 w-full">
+        <div className="text-center mb-8">
+          <span className="text-[11px] sm:text-xs font-extrabold text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-3 py-1 rounded-full border border-[var(--accent)]/20 uppercase tracking-wider">Usein kysytyt kysymykset</span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading mt-2">
+            UKK — Kysymyksiä &amp; Vastauksia
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {FAQ_ITEMS.map((item, index) => {
+            const isOpen = openFaqIndex === index
+            return (
+              <div 
+                key={index} 
+                className="bg-[var(--surface)] rounded-2xl border border-[var(--border)] overflow-hidden transition-colors"
+              >
+                <button
+                  onClick={() => toggleFaq(index)}
+                  className="w-full min-h-[52px] px-5 py-4 text-left flex items-center justify-between gap-4 font-bold text-sm text-[var(--text)] hover:text-[var(--accent)] transition"
+                  aria-expanded={isOpen}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <HelpCircle className="w-4 h-4 text-[var(--accent)] shrink-0" />
+                    <span>{item.q}</span>
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-[var(--muted)] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-[var(--accent)]' : ''}`} />
+                </button>
+
+                {isOpen && (
+                  <div className="px-5 pb-5 pt-1 text-xs text-[var(--muted)] leading-relaxed border-t border-[var(--border)]/50 animate-in fade-in duration-150">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* 6. KIERTOKIRJE & NEWSLETTER SECTION */}
       <section id="newsletter" data-reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 my-4">
         <div className="glass rounded-3xl p-6 sm:p-10 border border-[var(--accent)]/30 relative overflow-hidden bg-gradient-to-r from-[var(--surface)] via-[var(--surface-2)] to-[var(--surface)]">
           <div className="max-w-3xl space-y-4">
@@ -646,7 +774,6 @@ export default function App() {
               </div>
             ) : (
               <form onSubmit={handleNewsletterSubmit} className="mt-4 flex flex-col sm:flex-row gap-3 items-stretch">
-                {/* Honey-pot bot prevention */}
                 <input 
                   type="text" 
                   name="website_hp" 
@@ -684,7 +811,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 6. TRUST & VALUE PROPOSITION */}
+      {/* 7. TRUST & VALUE PROPOSITION */}
       <section id="safety" data-reveal className="bg-[var(--surface)] border-y border-[var(--border)] py-12 sm:py-16 my-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
@@ -729,7 +856,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* 7. MINIMALIST FOOTER */}
+      {/* 8. MINIMALIST FOOTER */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex flex-col sm:flex-row items-center justify-between text-xs text-[var(--muted)] gap-4 border-t border-[var(--border)]">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-[var(--accent)] flex items-center justify-center text-[var(--accent-ink)] text-[10px] font-bold">
@@ -800,7 +927,6 @@ export default function App() {
               </div>
             ) : (
               <form onSubmit={handleBookingSubmit} className="space-y-4">
-                {/* Honey-pot bot field */}
                 <input 
                   type="text" 
                   name="website_hp" 
@@ -938,6 +1064,36 @@ export default function App() {
                 Sulje
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* COOKIE CONSENT BANNER */}
+      {!cookieConsent && (
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-50 glass p-5 rounded-2xl border border-[var(--accent)]/30 bg-[var(--surface)] shadow-2xl space-y-3 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="flex items-start gap-3">
+            <Cookie className="w-5 h-5 text-[var(--accent)] shrink-0 mt-0.5" />
+            <div className="text-xs text-[var(--text)] space-y-1">
+              <p className="font-bold text-sm">Evästesuostumus (Cookies)</p>
+              <p className="text-[var(--muted)] leading-relaxed">
+                Käytämme sivustolla välttämättömiä evästeitä sivuston toimivuuteen sekä anonyymiä analytiikkaa käyttökokemuksen parantamiseksi.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1 justify-end">
+            <button
+              onClick={() => handleCookieConsent('necessary')}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] hover:bg-[var(--border)]/40 transition min-h-[40px]"
+            >
+              Vain välttämättömät
+            </button>
+            <button
+              onClick={() => handleCookieConsent('all')}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 transition min-h-[40px]"
+            >
+              Hyväksy kaikki
+            </button>
           </div>
         </div>
       )}
