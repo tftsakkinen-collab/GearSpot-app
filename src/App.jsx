@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { fetchListings } from './services/api'
 import { MOCK_LISTINGS } from './data/mockListings'
+import sharedInfo from './data/shared_info.json'
 import AvatarInitials from './components/AvatarInitials'
 import { sanitizeInput, validateHoneypot, isValidEmail } from './utils/security'
 import { trackEvent } from './utils/analytics'
@@ -863,7 +864,7 @@ export default function App() {
             V
           </div>
           <span className="font-semibold text-[var(--text)]">Vuokraajanne</span>
-          <span>— Tiedottajanne Oy, Oulu</span>
+          <span>— {sharedInfo?.yritys || 'Tiedottajanne Oy'}, {sharedInfo?.yhteystiedot?.paikkakunta || 'Oulu'}</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
           <button 
@@ -879,10 +880,10 @@ export default function App() {
             Tietosuoja &amp; GDPR
           </button>
           <a 
-            href="mailto:info@tiedottajanne.fi" 
+            href={`mailto:${sharedInfo?.yhteystiedot?.sahkoposti || 'info@tiedottajanne.fi'}`}
             className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30"
           >
-            Yhteystiedot
+            Yhteystiedot ({sharedInfo?.yhteystiedot?.sahkoposti || 'info@tiedottajanne.fi'})
           </a>
         </div>
       </footer>
