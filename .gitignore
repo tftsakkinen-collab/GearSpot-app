@@ -17,6 +17,8 @@ token.json
 !package.json
 !package-lock.json
 !gearspot-project.json
+!vercel.json
+!shared_info.json
 
 # Python
 __pycache__/

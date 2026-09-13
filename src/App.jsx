@@ -55,11 +55,11 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Entä jos varuste rikkoutuu tai vaurioituu vuokrauksen aikana?',
-    a: 'Vuokraajanne-vertaisvuokraus noudattaa selkeitä vastuuehtoja. Tavanomaisesta kulumisesta ei veloiteta, ja mahdolliset vahingot käsitellään turvatakuuehtojemme mukaisesti. Varusteen kunto tarkistetaan luovutuksen yhteydessä.'
+    a: 'Palveluun tulee selkeät vastuuehdot ja turvatakuu tavanomaisen kulumisen sekä vaurioiden varalle. Varusteiden kunto tarkistetaan luovutuksen yhteydessä.'
   },
   {
     q: 'Miten voin laittaa oman SUP-laudan tai retkikeittimen vuokralle?',
-    a: 'Klikkaa yläpalkin "Vuokraa oma varusteesi" -painiketta. Syötä varusteesi tiedot ja vuokraushinta. Tiedottajanne Oy hoitaa alustan ylläpidon ja näkyvyyden Oulun alueella.'
+    a: 'Palvelun avautuessa keväällä 2027 voit ilmoittaa oman SUP-laudan tai retkivarusteesi vuokralle sivuston kautta. Tiedottajanne Oy hoitaa alustan ylläpidon ja näkyvyyden Oulun alueella.'
   },
   {
     q: 'Mitkä ovat peruutusehdot?',
@@ -311,12 +311,18 @@ export default function App() {
               {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />}
             </button>
 
-            <button 
-              onClick={() => setActiveLegalModal('terms')}
+            <a 
+              href="/kayttoehdot"
               className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40 min-h-[44px] inline-flex items-center"
             >
               Käyttöehdot
-            </button>
+            </a>
+            <a 
+              href="/tietosuoja"
+              className="text-xs font-semibold text-[var(--muted)] hover:text-[var(--text)] px-3 py-2 transition rounded-lg hover:bg-[var(--border)]/40 min-h-[44px] inline-flex items-center"
+            >
+              Tietosuoja
+            </a>
             <button 
               onClick={() => handleOpenBooking(listings[0])}
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 transition shadow-sm hover:shadow active:scale-[0.98] min-h-[44px]"
@@ -385,12 +391,20 @@ export default function App() {
               Turvallisuus &amp; Vakuutus
             </a>
             <div className="pt-3 border-t border-[var(--border)] flex flex-col gap-2.5">
-              <button 
-                onClick={() => { setMobileMenuOpen(false); setActiveLegalModal('privacy'); }}
-                className="w-full text-center py-3 text-xs font-semibold rounded-xl bg-[var(--border)]/50 text-[var(--text)] hover:bg-[var(--border)] transition min-h-[44px]"
+              <a 
+                href="/kayttoehdot"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2 text-xs font-semibold rounded-xl bg-[var(--border)]/50 text-[var(--text)] hover:bg-[var(--border)] transition min-h-[44px] flex items-center justify-center"
+              >
+                Käyttöehdot
+              </a>
+              <a 
+                href="/tietosuoja"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2 text-xs font-semibold rounded-xl bg-[var(--border)]/50 text-[var(--text)] hover:bg-[var(--border)] transition min-h-[44px] flex items-center justify-center"
               >
                 Tietosuoja &amp; GDPR
-              </button>
+              </a>
               <button 
                 onClick={() => { setMobileMenuOpen(false); handleOpenBooking(listings[0]); }}
                 className="w-full inline-flex items-center justify-center gap-2 text-center py-3 text-xs font-semibold rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] shadow-sm min-h-[44px]"
@@ -408,18 +422,18 @@ export default function App() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[500px] md:w-[700px] h-[300px] sm:h-[400px] bg-gradient-to-tr from-emerald-500/20 via-emerald-500/10 to-transparent blur-3xl rounded-full -z-10 pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-quiet)] border border-[var(--accent)]/20 text-[var(--on-accent-quiet)] text-xs font-semibold mb-4 sm:mb-6 shadow-xs max-w-full">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--on-accent-quiet)] shrink-0" />
-            <span className="truncate">SUP-lautojen ja ulkoiluvarusteiden lyhytvuokraus Oulussa</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/15 border-2 border-amber-500/50 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-bold mb-4 sm:mb-6 shadow-sm max-w-full">
+            <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>⚠️ Palvelu avautuu keväällä 2027 — Sivusto on ennakkoesittely</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[var(--text)] font-heading leading-[1.15] sm:leading-[1.12]">
             Vuokraa SUP-laudat ja varusteet. <br className="hidden sm:inline" />
-            <span className="text-[var(--accent)]">Suoraan paikallisilta oululaisilta.</span>
+            <span className="text-[var(--accent)]">Tulossa Ouluun keväällä 2027.</span>
           </h1>
 
           <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[var(--muted)] max-w-2xl mx-auto font-normal leading-relaxed">
-            Kaikkea ei tarvitse ostaa omaksi varastoon. Nappaa laadukas SUP-lauta tai retkikeitin päiväksi tai viikonlopuksi naapuriltasi Oulussa.
+            Kaikkea ei tarvitse ostaa omaksi varastoon. Tällä sivustolla voit tutustua tulevaan tarjontaan ja liittyä kiertokirjeeseen saadaksesi alennuskoodin lanseeraukseen.
           </p>
 
           {/* Search Bar */}
@@ -539,15 +553,15 @@ export default function App() {
       <section id="gear" data-reveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 pb-4 border-b border-[var(--border)] gap-3 sm:gap-4">
           <div>
-            <span className="text-[11px] sm:text-xs font-extrabold text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2.5 py-1 rounded-full border border-[var(--accent)]/20 tracking-wider uppercase">Saatavilla Oulussa</span>
+            <span className="text-[11px] sm:text-xs font-extrabold text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2.5 py-1 rounded-full border border-[var(--accent)]/20 tracking-wider uppercase">Tulossa keväällä 2027</span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text)] font-heading mt-1 sm:mt-1.5">
-              Suosituimmat retkivarusteet
+              Esimerkki tulevista ilmoituksista
             </h2>
           </div>
           
           <div className="flex items-center justify-between sm:justify-end gap-3">
             <p className="text-xs text-[var(--muted)] font-medium">
-              Näytetään <span className="font-bold text-[var(--text)]">{listings.length}</span> vapaata varustetta
+              Näytetään <span className="font-bold text-[var(--text)]">{listings.length}</span> esimerkkikohdetta
             </p>
             {hasActiveFilters && (
               <button 
@@ -595,21 +609,9 @@ export default function App() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 aspect-[4/3]"
                   />
                   
-                  {gear.tag && (
-                    <div className="absolute top-2.5 left-2.5 z-10">
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold scrim-pill shadow-xs">
-                        {gear.tag}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="absolute top-2.5 right-14 z-10">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold tracking-wide shadow-xs border border-white/20 ${
-                      gear.isAvailable 
-                        ? 'bg-[var(--accent)] text-[var(--accent-ink)]' 
-                        : 'bg-amber-700 text-white'
-                    }`}>
-                      {gear.isAvailable ? 'Vapaa' : 'Varattu'}
+                  <div className="absolute top-2.5 left-2.5 z-10">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold scrim-pill shadow-xs">
+                      Esimerkkikohde
                     </span>
                   </div>
 
@@ -634,11 +636,6 @@ export default function App() {
                       <span className="font-bold uppercase tracking-wider text-[10px] text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2 py-0.5 rounded border border-[var(--accent)]/20">
                         {gear.brand}
                       </span>
-                      <div className="flex items-center gap-1 text-[var(--text)] font-semibold">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span>{gear.rating}</span>
-                        <span className="text-[var(--muted)] font-normal text-[11px]">({gear.reviewsCount || 12})</span>
-                      </div>
                     </div>
 
                     <h3 className="font-bold text-[var(--text)] text-base leading-snug group-hover:text-[var(--accent)] transition line-clamp-2 mt-1">
@@ -658,17 +655,9 @@ export default function App() {
 
                   <div className="mt-4 pt-3.5 border-t border-[var(--border)] space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <AvatarInitials name={gear.owner.name} size={28} />
-                        <div className="flex flex-col">
-                          <span className="text-xs text-[var(--text)] font-medium leading-none">
-                            {gear.owner.name}
-                          </span>
-                          {gear.owner.isSuperOwner && (
-                            <span className="text-[9px] font-extrabold text-[var(--on-accent-quiet)]">Super-omistaja</span>
-                          )}
-                        </div>
-                      </div>
+                      <span className="text-xs text-[var(--muted)] font-medium">
+                        Arvioitu vuokrahinta
+                      </span>
 
                       <div className="text-right">
                         <div className="text-base sm:text-lg font-extrabold text-[var(--text)] tabular-nums">
@@ -686,7 +675,7 @@ export default function App() {
                       onClick={() => handleOpenBooking(gear)}
                       className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:opacity-90 font-bold text-xs transition shadow-sm active:scale-[0.98]"
                     >
-                      <span>Vuokraa tästä</span>
+                      <span>Esimerkkikohde (Kevät 2027)</span>
                       <ArrowRight className="w-4 h-4 text-[var(--accent-ink)]" />
                     </button>
                   </div>
@@ -824,7 +813,7 @@ export default function App() {
               <div>
                 <h4 className="font-bold text-sm text-[var(--text)]">Turvallinen vertaisvuokraus</h4>
                 <p className="text-xs text-[var(--muted)] mt-1 leading-relaxed">
-                  Vahva Suomi.fi / pankkitunnistautuminen ja integroitu turvatakuu suojaavat sekä vuokraajaa että omistajaa.
+                  Palveluun tulee vahva tunnistautuminen ja turvatakuu.
                 </p>
               </div>
             </div>
@@ -867,23 +856,23 @@ export default function App() {
           <span>— {sharedInfo?.yritys || 'Tiedottajanne Oy'}, {sharedInfo?.yhteystiedot?.paikkakunta || 'Oulu'}</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center">
-          <button 
-            onClick={() => setActiveLegalModal('terms')} 
+          <a 
+            href="/kayttoehdot" 
             className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30 text-xs text-[var(--muted)]"
           >
             Käyttöehdot
-          </button>
-          <button 
-            onClick={() => setActiveLegalModal('privacy')} 
+          </a>
+          <a 
+            href="/tietosuoja" 
             className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30 text-xs text-[var(--muted)]"
           >
             Tietosuoja &amp; GDPR
-          </button>
+          </a>
           <a 
-            href={`mailto:${sharedInfo?.yhteystiedot?.sahkoposti || 'info@tiedottajanne.fi'}`}
-            className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30"
+            href={`mailto:${sharedInfo?.yhteystiedot?.sahkoposti || 'tiedottajanne@gmail.com'}`}
+            className="min-h-[44px] py-3 px-3 inline-flex items-center hover:text-[var(--text)] transition rounded-lg hover:bg-[var(--border)]/30 text-xs text-[var(--muted)]"
           >
-            Yhteystiedot ({sharedInfo?.yhteystiedot?.sahkoposti || 'info@tiedottajanne.fi'})
+            Yhteystiedot ({sharedInfo?.yhteystiedot?.sahkoposti || 'tiedottajanne@gmail.com'})
           </a>
         </div>
       </footer>
@@ -902,12 +891,12 @@ export default function App() {
 
             <div className="space-y-1">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--on-accent-quiet)] bg-[var(--accent-quiet)] px-2.5 py-0.5 rounded-full border border-[var(--accent)]/20">
-                Vuokrauspyyntö
+                Ennakkovarauspyyntö (Kevät 2027)
               </span>
               <h3 className="text-xl font-bold text-[var(--text)] font-heading leading-tight pt-1">
                 {bookingItem.title}
               </h3>
-              <p className="text-xs text-[var(--muted)]">Noutopaikka: {bookingItem.location}</p>
+              <p className="text-xs text-[var(--muted)]">Esimerkkikohde — Noutopaikka: {bookingItem.location}</p>
             </div>
 
             {bookingSubmitted ? (
@@ -915,15 +904,15 @@ export default function App() {
                 <div className="w-12 h-12 rounded-full bg-[var(--accent-quiet)] text-[var(--on-accent-quiet)] flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6 text-[var(--on-accent-quiet)]" />
                 </div>
-                <h4 className="text-lg font-bold text-[var(--text)]">Vuokrauspyyntö lähetetty!</h4>
+                <h4 className="text-lg font-bold text-[var(--text)]">Kiitos kiinnostuksestasi!</h4>
                 <p className="text-xs text-[var(--muted)] leading-relaxed max-w-xs mx-auto">
-                  Omistaja ({bookingItem.owner.name}) on saanut ilmoituksen pyynnöstäsi. Saat vahvistusviestin ja maksulinkin sähköpostiisi pikaisesti.
+                  Vuokraajanne.com avautuu keväällä 2027. Olemme ilmoittamaasi sähköpostiin yhteydessä, kun palvelu ja varaukset aukeavat.
                 </p>
                 <button
                   onClick={() => setBookingItem(null)}
                   className="mt-2 min-h-[44px] px-6 py-2.5 rounded-full bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-xs hover:opacity-90 transition"
                 >
-                  Valmis
+                  Sulje
                 </button>
               </div>
             ) : (
@@ -954,7 +943,7 @@ export default function App() {
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-[var(--surface-2)] border border-[var(--border)] flex justify-between items-center text-xs">
-                  <span className="text-[var(--muted)]">Laskettu vuokraushinta:</span>
+                  <span className="text-[var(--muted)]">Arvioitu vuokraushinta:</span>
                   <span className="text-base font-extrabold text-[var(--text)]">
                     {bookingItem.pricePerDay * bookingDays} €
                   </span>
@@ -986,7 +975,7 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-semibold text-[var(--text)] block mb-1">Puhelinnumero (noutoa varten)</label>
+                    <label className="text-xs font-semibold text-[var(--text)] block mb-1">Puhelinnumero</label>
                     <input
                       type="tel"
                       placeholder="040 123 4567"
@@ -1007,7 +996,7 @@ export default function App() {
                   className="w-full min-h-[48px] rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] font-bold text-xs hover:opacity-90 transition shadow-md inline-flex items-center justify-center gap-2 active:scale-95"
                 >
                   <Send className="w-4 h-4 text-[var(--accent-ink)]" />
-                  <span>Lähetä vuokrauspyyntö ({bookingItem.pricePerDay * bookingDays} €)</span>
+                  <span>Lähetä ennakkokiinnostus ({bookingItem.pricePerDay * bookingDays} €/est.)</span>
                 </button>
               </form>
             )}
@@ -1034,7 +1023,10 @@ export default function App() {
                   <h3>Tietosuojaseloste &amp; GDPR</h3>
                 </div>
                 <p>
-                  Tiedottajanne Oy (Vuokraajanne.com) noudattaa EU:n yleistä tietosuoja-asetusta (GDPR). Keräämme vain vuokraustapahtuman ja noudon kannalta välttämättömät tiedot (nimi, sähköposti, puhelinnumero).
+                  <strong>Rekisterinpitäjä:</strong> Tiedottajanne Oy (Y-tunnus 3305813-7), yhteydenotot: <a href="mailto:tiedottajanne@gmail.com" className="underline text-[var(--accent)]">tiedottajanne@gmail.com</a>.
+                </p>
+                <p>
+                  Vuokraajanne.com noudattaa EU:n yleistä tietosuoja-asetusta (GDPR). Keräämme vain ennakkoesittelysivuston yhteydenottojen ja kiertokirjeen tilausten kannalta välttämättömät tiedot (nimi, sähköposti, puhelinnumero).
                 </p>
                 <h4 className="font-bold text-[var(--text)] pt-2 text-xs uppercase tracking-wider">Tietojen käyttö &amp; Suojaus</h4>
                 <p>
@@ -1048,7 +1040,7 @@ export default function App() {
                   <h3>Käyttöehdot</h3>
                 </div>
                 <p>
-                  Vuokraajanne.com toimii vertaisvuokrausalustana. Vuokraaja vastaa varusteen huolellisesta käsittelystä vuokrausaikana ja palautuksesta sovitussa kunnossa.
+                  Vuokraajanne.com on keväällä 2027 avautuva vertaisvuokrausalusta. Palvelun avautuessa vuokraaja vastaa varusteen huolellisesta käsittelystä vuokrausaikana ja palautuksesta sovitussa kunnossa.
                 </p>
                 <h4 className="font-bold text-[var(--text)] pt-2 text-xs uppercase tracking-wider">Peruutusehdot</h4>
                 <p>

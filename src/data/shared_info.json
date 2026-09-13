@@ -1,1 +1,13 @@
-﻿{}
+{
+  "yritys": "Säkkinen Yhtiöt",
+  "omistaja": "Janne Säkkinen",
+  "yhteystiedot": {
+    "sahkoposti": "tiedottajanne@gmail.com",
+    "paikkakunta": "Oulu, Suomi"
+  },
+  "aukioloajat": {
+    "arkisin": "08:00 - 17:00",
+    "viikonloppuisin": "Sopimuksen mukaan"
+  },
+  "paivitetty": "2026-09-10T22:35:00+03:00"
+}

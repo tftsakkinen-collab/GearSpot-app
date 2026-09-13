@@ -17,24 +17,15 @@ export const MOCK_LISTINGS = [
     city: "Oulu",
     pricePerDay: 25,
     pricePerWeekend: 60,
-    rating: 4.98,
-    reviewsCount: 32,
     isAvailable: true,
-    tag: "Suosikki",
+    tag: "Esimerkki",
     imageUrl: "/img/gear/sup-saimaa-sun.svg?v=1",
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Alumiinimela, pumppu & karkuremmi",
       "Koko: 320 x 81 x 15 cm",
       "Kanto-reppu mukana"
-    ],
-    owner: {
-      name: "Matias K.",
-      city: "Oulu",
-      avatar: null,
-      isSuperOwner: true,
-      verified: true
-    }
+    ]
   },
   {
     id: "gear-2",
@@ -48,24 +39,15 @@ export const MOCK_LISTINGS = [
     city: "Oulu",
     pricePerDay: 30,
     pricePerWeekend: 75,
-    rating: 5.0,
-    reviewsCount: 19,
     isAvailable: true,
-    tag: "Premium",
+    tag: "Esimerkki",
     imageUrl: "/img/gear/sup-red-paddle.svg?v=1",
     specs: [
       "Kantavuus: 120 kg",
       "Varusteet: Hiilikuitumela, Titan 2 -pumppu & karkuremmi",
       "Korkea 20 PSI paine",
       "Pyörällinen kuljetuskassi"
-    ],
-    owner: {
-      name: "Laura H.",
-      city: "Oulu",
-      avatar: null,
-      isSuperOwner: false,
-      verified: true
-    }
+    ]
   },
   {
     id: "gear-3",
@@ -79,24 +61,15 @@ export const MOCK_LISTINGS = [
     city: "Oulu",
     pricePerDay: 22,
     pricePerWeekend: 55,
-    rating: 4.89,
-    reviewsCount: 24,
     isAvailable: true,
-    tag: "Helppo & Vakaa",
+    tag: "Esimerkki",
     imageUrl: "/img/gear/sup-aqua-marina.svg?v=1",
     specs: [
       "Kantavuus: 140 kg",
       "Varusteet: Säädettävä mela, kaksitoimipumppu & karkuremmi",
       "Koko: 320 x 81 x 15 cm",
       "Pitävä kansipehmuste"
-    ],
-    owner: {
-      name: "Vilma T.",
-      city: "Oulu",
-      avatar: null,
-      isSuperOwner: false,
-      verified: true
-    }
+    ]
   },
   {
     id: "gear-4",
@@ -110,24 +83,15 @@ export const MOCK_LISTINGS = [
     city: "Oulu",
     pricePerDay: 28,
     pricePerWeekend: 70,
-    rating: 4.95,
-    reviewsCount: 18,
     isAvailable: true,
-    tag: "Retkimalli",
+    tag: "Esimerkki",
     imageUrl: "/img/gear/sup-saimaa-tourer.svg?v=1",
     specs: [
       "Kantavuus: 160 kg",
       "Varusteet: Lasikuitumela, korkeapainepumppu & karkuremmi",
       "Koko: 350 x 81 x 15 cm",
       "Tuplatavaraverkot"
-    ],
-    owner: {
-      name: "Juho M.",
-      city: "Oulu",
-      avatar: null,
-      isSuperOwner: true,
-      verified: true
-    }
+    ]
   },
   {
     id: "gear-5",
@@ -141,24 +105,15 @@ export const MOCK_LISTINGS = [
     city: "Oulu",
     pricePerDay: 10,
     pricePerWeekend: 25,
-    rating: 5.0,
-    reviewsCount: 34,
     isAvailable: true,
-    tag: "Ultrakevyt",
+    tag: "Esimerkki",
     imageUrl: "/img/gear/retkikeitin-primus.svg?v=1",
     specs: [
       "Monipolttoainevalmius",
       "Paino: 230 g (ilman pumppua)",
       "Teho: 2600 W",
       "Sisältää polttoainepullon"
-    ],
-    owner: {
-      name: "Antti S.",
-      city: "Oulu",
-      avatar: null,
-      isSuperOwner: true,
-      verified: true
-    }
+    ]
   },
   {
     id: "gear-6",
@@ -172,24 +127,15 @@ export const MOCK_LISTINGS = [
     city: "Oulu",
     pricePerDay: 9,
     pricePerWeekend: 22,
-    rating: 4.91,
-    reviewsCount: 17,
     isAvailable: true,
-    tag: "Supernopea",
+    tag: "Esimerkki",
     imageUrl: "/img/gear/retkikeitin-jetboil.svg?v=1",
     specs: [
       "1.0L FluxRing-kattila",
       "Keittoaika: 100s / 0.5L",
       "Piezo-sytytys",
       "Paino: 371 g"
-    ],
-    owner: {
-      name: "Sanna P.",
-      city: "Oulu",
-      avatar: null,
-      isSuperOwner: false,
-      verified: true
-    }
+    ]
   }
 ]
 
